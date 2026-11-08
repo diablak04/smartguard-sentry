@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Sekrety / konfiguracja lokalna
+.env
+
+# Modele YOLO (duże pliki, pobierają się same)
+*.pt
+
+# Dane wygenerowane
+foto/*.jpg
+*.db
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
