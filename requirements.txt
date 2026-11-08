@@ -1,0 +1,7 @@
+ultralytics
+opencv-python
+bleak
+pyserial
+fastapi
+uvicorn
+requests
