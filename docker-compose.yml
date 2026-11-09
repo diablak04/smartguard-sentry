@@ -1,0 +1,20 @@
+# SmartGuard — orkiestracja uslug.
+# n8n stawiamy w kontenerze (automatyzacja + Telegram, Faza 7).
+# Aplikacja wizyjna (main.py) dziala na HOSCIE, bo potrzebuje kamery USB,
+# portu COM (ESP32) i Bluetootha — Docker na Windows nie daje do nich dostepu.
+
+services:
+  n8n:
+    image: n8nio/n8n
+    container_name: smartguard-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Europe/Warsaw
+      - TZ=Europe/Warsaw
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
