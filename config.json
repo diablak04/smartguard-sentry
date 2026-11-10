@@ -6,7 +6,7 @@
   "strefa": [[0.25, 0.55], [0.75, 0.55], [0.9, 0.95], [0.1, 0.95]],
   "potwierdzenie_klatek": 3,
   "serwo": { "pan_min": 30, "pan_max": 150, "tilt_min": 20, "tilt_max": 60 },
-  "esp32_port": "COM5",
+  "esp32_port": "COM3",
   "esp32_baud": 115200,
   "iff": { "brelok_mac": "AA:BB:CC:11:22:33", "rssi_prog": -75 },
   "fire_ms": 200,
