@@ -1,35 +1,33 @@
-"""Orkiestrator SmartGuard + maszyna stanow (szkielet Fazy 0).
+"""Orkiestrator SmartGuard + maszyna stanow.
 
-Na tym etapie main.py:
-  - wczytuje config.json,
-  - uruchamia logging (konsola + plik),
-  - trzyma maszyne stanow i stoi w IDLE,
-  - loguje kilka tickow i konczy (moduly F1+ jeszcze niepodpiete).
+Faza 0: szkielet maszyny stanow + logging.
+Faza 2: potwierdzanie detekcji na N klatkach (anty-falszywka) + klasyfikacja swoj/wrog.
 
-Realne moduly (kamera, YOLO, strefa, IFF, wiezyczka) dochodza w kolejnych fazach.
+Maszyna sterowana percepcja: krok(cel_w_strefie, iff_swoj) wykonuje JEDNO przejscie.
+Realne wejscia (kamera -> YOLO -> strefa -> IFF BLE) podepniemy w integracji (Faza 6);
+tu run() odgrywa scenariusz, zeby pokazac dzialanie bez sprzetu.
 """
 import json
 import logging
-import time
 from enum import Enum, auto
 from pathlib import Path
+
+from rules import Potwierdzanie, klasyfikuj_iff
 
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
 
 class Stan(Enum):
-    """Stany maszyny (zgodne z karta projektu)."""
     IDLE = auto()        # czuwanie, strefa pusta
-    PATROL = auto()      # ruch wahadlowy w poszukiwaniu celow (F10)
-    DETECTED = auto()    # YOLO wykrylo czlowieka (F1)
-    CONFIRMING = auto()  # potwierdzanie na 3 klatkach (F2)
-    FRIENDLY = auto()    # IFF: SWOJ -> blokada ognia (F2)
-    FOE = auto()         # IFF: WROG -> eskalacja (F2)
-    ENGAGE = auto()      # celowanie + strzal (F5)
-    COOLDOWN = auto()    # przerwa po strzale (max 1 alert / 60 s)
+    PATROL = auto()      # ruch wahadlowy (F10)
+    DETECTED = auto()    # YOLO wykrylo czlowieka w strefie
+    CONFIRMING = auto()  # potwierdzanie na N klatkach
+    FRIENDLY = auto()    # IFF: SWOJ -> blokada ognia
+    FOE = auto()         # IFF: WROG -> eskalacja
+    ENGAGE = auto()      # celowanie + strzal
+    COOLDOWN = auto()    # przerwa po strzale
 
 
-# Dozwolone przejscia: z_stanu -> [mozliwe_nastepne]
 PRZEJSCIA = {
     Stan.IDLE:       [Stan.PATROL, Stan.DETECTED],
     Stan.PATROL:     [Stan.DETECTED, Stan.IDLE],
@@ -48,66 +46,96 @@ def wczytaj_config(path: Path = CONFIG_PATH) -> dict:
 
 
 def konfiguruj_logging() -> None:
-    """Logi jednoczesnie na konsole i do pliku smartguard.log."""
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%H:%M:%S",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler("smartguard.log", encoding="utf-8"),
-        ],
+        handlers=[logging.StreamHandler(),
+                  logging.FileHandler("smartguard.log", encoding="utf-8")],
     )
 
 
 class SmartGuard:
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, cooldown_ticks: int = 3):
         self.config = config
         self.stan = Stan.IDLE
-        self.muted = False  # nakladka MUTED (wyciszenie z Telegrama, F8)
+        self.muted = False
+        self.fire_ms = config.get("fire_ms", 200)
+        self.potw = Potwierdzanie(wymagane=config.get("potwierdzenie_klatek", 3))
+        # W realu cooldown to czas (config['cooldown_s']); w szkielecie liczymy w tickach.
+        self.cooldown_ticks = cooldown_ticks
+        self._cooldown = 0
         self.log = logging.getLogger("smartguard")
 
-    def przejdz(self, nowy: Stan) -> bool:
-        """Zmiana stanu zgodnie z tabela przejsc (chroni przed bledna logika)."""
+    def _przejdz(self, nowy: Stan) -> None:
         if nowy in PRZEJSCIA[self.stan]:
             self.log.info("Stan: %s -> %s", self.stan.name, nowy.name)
             self.stan = nowy
-            return True
-        self.log.warning("Niedozwolone przejscie: %s -> %s", self.stan.name, nowy.name)
-        return False
+        else:
+            self.log.warning("Niedozwolone przejscie: %s -> %s", self.stan.name, nowy.name)
 
-    def w_godzinach_czuwania(self) -> bool:
-        """Nakladka ARMED_HOURS. Szkielet: zawsze True.
+    def krok(self, cel_w_strefie: bool, iff_swoj: bool):
+        """Jedno przejscie maszyny na podstawie percepcji. Zwraca akcje albo None."""
+        akcja = None
+        st = self.stan
 
-        TODO (F10): porownaj biezaca godzine z config['godziny_czuwania'].
-        """
-        return True
+        if st == Stan.IDLE:
+            if cel_w_strefie:
+                self._przejdz(Stan.DETECTED)
 
-    def tick(self) -> None:
-        """Jeden obieg glownej petli. W szkielecie F0 tylko loguje.
+        elif st == Stan.DETECTED:
+            self.potw.reset()
+            self._przejdz(Stan.CONFIRMING)
 
-        TODO F1: capture.py -> detector.py (YOLO)
-        TODO F2: rules.py (strefa + 3 klatki + IFF) -> wyznacz nastepny stan
-        TODO F5: turret_controller.py (celowanie + strzal)
-        """
-        self.log.info(
-            "tick | stan=%s | muted=%s | czuwanie=%s",
-            self.stan.name, self.muted, self.w_godzinach_czuwania(),
-        )
+        elif st == Stan.CONFIRMING:
+            if not cel_w_strefie:
+                self._przejdz(Stan.IDLE)                      # cel zniknal = falszywy alarm
+            elif self.potw.aktualizuj(True):
+                docelowy = klasyfikuj_iff(iff_swoj)
+                self.log.info("Potwierdzony po %d klatkach -> %s", self.potw.wymagane, docelowy)
+                self._przejdz(Stan.FRIENDLY if docelowy == "FRIENDLY" else Stan.FOE)
 
-    def run(self, max_tick: int = 3, interwal: float = 1.0) -> None:
-        self.log.info("SmartGuard start. Wczytano config: %s", list(self.config.keys()))
-        self.log.info("Maszyna stanow w stanie poczatkowym: %s", self.stan.name)
-        for _ in range(max_tick):
-            self.tick()
-            time.sleep(interwal)
-        self.log.info("Szkielet F0 OK — moduly (F1+) jeszcze niepodpiete. Koniec.")
+        elif st == Stan.FRIENDLY:
+            self.log.info("SWOJ w strefie -> BLOKADA OGNIA")
+            self._przejdz(Stan.IDLE)
+
+        elif st == Stan.FOE:
+            self._przejdz(Stan.ENGAGE)
+
+        elif st == Stan.ENGAGE:
+            if self.muted:
+                self.log.warning("ENGAGE, ale MUTED -> bez strzalu")
+            else:
+                self.log.warning("STRZAL %d ms (cel: korpus, nie glowa)", self.fire_ms)
+                akcja = ("FIRE", self.fire_ms)
+            self._cooldown = self.cooldown_ticks
+            self._przejdz(Stan.COOLDOWN)
+
+        elif st == Stan.COOLDOWN:
+            self._cooldown -= 1
+            if self._cooldown <= 0:
+                self._przejdz(Stan.IDLE)
+
+        return akcja
+
+    def run_scenariusz(self, scenariusz) -> None:
+        """Odgrywa liste (cel_w_strefie, iff_swoj) — demonstracja bez sprzetu."""
+        self.log.info("SmartGuard start. Stan poczatkowy: %s", self.stan.name)
+        for i, (cel, swoj) in enumerate(scenariusz, 1):
+            akcja = self.krok(cel, swoj)
+            self.log.info("  [t%02d] cel=%s swoj=%s | stan=%s%s",
+                          i, int(cel), int(swoj), self.stan.name,
+                          f" | AKCJA={akcja}" if akcja else "")
+        self.log.info("Koniec scenariusza.")
 
 
 def main() -> None:
     konfiguruj_logging()
     config = wczytaj_config()
-    SmartGuard(config).run()
+    sg = SmartGuard(config)
+    # Demo: intruz (WROG) wchodzi w strefe i zostaje w niej kilka klatek.
+    scenariusz = [(False, False)] + [(True, False)] * 6 + [(False, False)] * 4
+    sg.run_scenariusz(scenariusz)
 
 
 if __name__ == "__main__":
