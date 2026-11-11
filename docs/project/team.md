@@ -1,7 +1,7 @@
-# Podział pracy
+# Zespół i sposób pracy
 
 Zakres = przypadki użycia ze Scenariuszy (UC-01–04 + UC-07). Każdy UC ma jednego właściciela.
-Stan prac: `docs/zakres.md`. Bieżące zadania: Kanban.
+Stan prac: [`docs/project/scope.md`](scope.md). Bieżące zadania: Kanban.
 
 ## Role
 
@@ -43,3 +43,29 @@ Zmiana tego, co się przekazuje = PR oglądany przez obie strony.
 
 Sentry PO robi równolegle, gdy przyjdzie sprzęt. DEV od początku nagrywa nagrania testowe (karta § 9.1)
 i wpisuje wyniki w karty na Kanbanie.
+
+## Jak pracujemy
+
+Narzędzia (karta § 6.1, z jedną zmianą: zamiast Trello GitHub Projects, bo zadania są w jednym miejscu z kodem i PR):
+
+| Do czego | Narzędzie |
+|---|---|
+| kod, przegląd zmian | GitHub, to repo; przepływ: `docs/agents/git.md` § Gałęzie i commity |
+| zadania | [Kanban na GitHub Projects](https://github.com/users/diablak04/projects/1) |
+| bieżąca komunikacja, Daily | Discord |
+| diagramy UML i ERD | draw.io, DataModeler |
+
+**Kanban:** kolumny Backlog → In Progress → Testing → Done.
+- Jedna karta = jedno wymaganie z [`docs/project/scope.md`](scope.md), w tytule numer z karty, np. `[5] Alert na Telegram`.
+- Kartę zakładasz jako issue w repo i dodajesz do projektu.
+- PR z `Closes #<nr issue>` zamyka issue po merge; karta sama przechodzi do Done, jeśli w projekcie jest włączony
+  workflow „Item closed”.
+
+## Definicja Ukończenia
+
+Karta projektu § 12.1. Karta na Kanbanie idzie do Done, gdy:
+- kod jest w `main` przez PR zatwierdzony przez drugą osobę,
+- działa w trybie demo na nagraniu testowym,
+- wynik sprawdzenia jest w komentarzu karty,
+- druga osoba uruchomiła zmianę u siebie,
+- odstępstwo od karty jest wpisane w `docs/project/scope.md` § Odstępstwa od karty.

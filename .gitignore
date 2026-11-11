@@ -11,8 +11,10 @@ env/
 # Modele YOLO (duże pliki, pobierają się same)
 *.pt
 
-# Dane wygenerowane
-foto/*.jpg
+# Dane wygenerowane (docs/agents/code.md § Pliki generowane)
+models/
+logs/
+data/
 *.db
 *.log
 
@@ -30,5 +32,7 @@ events/
 videos/
 *.mp4
 
-# Prywatne notatki kazdego dla Claude Code
+# Prywatne: instrukcje dla asystenta AI (CLAUDE.local.md = dawna nazwa) i notatki robocze kazdego
+AGENTS.local.md
 CLAUDE.local.md
+notes/
