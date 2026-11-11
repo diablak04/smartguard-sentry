@@ -32,13 +32,12 @@ dopisujemy nową, a w starej ustawiamy status „zastąpiona przez D-xx”. Bez 
 - **Odrzucone:** dongiel USB Bluetooth do PC: dodatkowy zakup, a skan i tak lepiej robić przy wieżyczce,
   bo RSSI mierzony przy niej lepiej oddaje odległość od celu.
 - **Skutki** (stan na 2026-11-11): skan BLE działa w szkicu testowym `firmware/ble_test`. W głównym firmware i po stronie PC
-  odczytu `IFF:` jeszcze nie ma; na razie `integracja.py` przełącza swój/wróg klawiszem `s`. `ble_scanner.py` (`bleak`)
+  odczytu `IFF:` jeszcze nie ma; na razie `main.py` przełącza swój/wróg klawiszem `s`. `smartguard/ble_scanner.py` (`bleak`)
   zostaje tylko jako zapas dla komputera z Bluetooth. Na liście zakupów jest brelok BLE ze stałym MAC.
 
 <a id="d-02"></a>
 ## D-02: Konwencja kodu i struktura folderów (2026-11-11, SM)
-- **Status:** przyjęta dla nowego kodu, gdy PO zatwierdzi PR z tą konwencją; przeniesienie istniejącego kodu
-  to osobny PR refaktoru.
+- **Status:** przyjęta (konwencja w PR #4, przeniesienie kodu w PR refaktoru, issue #10).
 - **Dotyczy:** cały kod Python i konfiguracja (`config.json`); działanie programu się nie zmienia.
 - **Problem:** pliki generowane (`yolo11n.pt`, `smartguard.log`) trafiały do korzenia repo albo do folderu, z którego
   ktoś uruchomił program, bo ścieżki liczyły się od bieżącego katalogu. Nazwy w kodzie były mieszane PL/EN

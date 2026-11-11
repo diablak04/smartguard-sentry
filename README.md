@@ -23,13 +23,13 @@ Co już działa, a czego jeszcze nie ma: [`docs/project/scope.md`](docs/project/
 ## Jak to działa
 
 ```
-kamera / MP4 → capture → detector (YOLO) → zona + rules (strefa, 3 klatki) → events (SQLite + JPG)
+kamera / MP4 → capture → detector (YOLO) → zone + rules (strefa, 3 klatki) → events (SQLite + JPG)
                                                                                  ├→ notifier → Telegram
                                                                                  └→ api → panel WWW
-Sentry: rules (IFF) → main (maszyna stanów) → turret_controller → ESP32 (serwa, pompka, laser)
+Sentry: rules (IFF) → state_machine → turret → ESP32 (serwa, pompka, laser)
 ```
 
-Opis każdego modułu jest w nagłówku jego pliku.
+Moduły są w pakiecie `smartguard/`; opis każdego jest w nagłówku jego pliku.
 
 Dlaczego tak, a nie inaczej: [`docs/project/decisions.md`](docs/project/decisions.md).
 
@@ -40,11 +40,12 @@ Wymagany Python 3.13. Sprzęt niepotrzebny: wieżyczka działa w trybie symulacj
 ```bat
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe main.py
+.venv\Scripts\python.exe demo.py
 ```
 
-`main.py` to demo bez kamery (`Koniec scenariusza.` = instalacja działa). Cały system na żywo: `integracja.py`,
-wyznaczanie strefy: `kalibracja_strefy.py`. Sterowanie każdego skryptu jest w nagłówku jego pliku.
+`demo.py` działa bez kamery (`Koniec scenariusza.` = instalacja działa). Cały system na żywo: `main.py`,
+wyznaczanie strefy: `calibrate_zone.py`, podgląd detekcji: `detection_preview.py`. Sterowanie każdego skryptu
+jest w nagłówku jego pliku.
 
 ## Konfiguracja
 

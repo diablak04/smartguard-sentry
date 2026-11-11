@@ -3,9 +3,6 @@
 > **Kiedy czytać:** przed każdą zmianą w `*.py`. Język nazw, struktura folderów, ścieżki i pliki generowane, konfiguracja, logi.
 > Obowiązuje ludzi i asystentów AI.
 
-> **Przejście w toku.** Kod jest jeszcze w starym, płaskim układzie z polskimi nazwami. Przeniesie go jeden PR
-> refaktoru. Do tego czasu nie zmieniaj nazw istniejących rzeczy na własną rękę; nowy kod pisz już według tych zasad.
-
 ## Język
 
 | Co | Język | Przykład |
@@ -51,7 +48,7 @@ smartguard-sentry/
 |---|---|---|
 | `models/` | `yolo11n.pt` | ultralytics, pobiera go przy pierwszym uruchomieniu |
 | `logs/` | `smartguard.log` (z rotacją) | logging |
-| `data/` | `smartguard.db`, `events/` (zdjęcia zdarzeń), `videos/` (nagrania testowe) | `events.py`, ty |
+| `data/` | `smartguard.db`, `events/` (zdjęcia zdarzeń), `videos/` (nagrania testowe) | `smartguard/events.py` (do napisania), ty |
 
 - Wszystkie trzy foldery są w `.gitignore`. W `data/` są zdjęcia ludzi (RODO), więc nigdy nie trafia do repo.
 - Ścieżki są liczone od folderu projektu (stała `ROOT` w `smartguard/config.py`), nigdy od bieżącego katalogu
@@ -60,8 +57,7 @@ smartguard-sentry/
 
 ## Konfiguracja
 
-- Wartości, które się stroi (progi, czasy, kąty, porty), trzymamy w `config.json`, nie w kodzie. Część stałych
-  w `integracja.py` i `main.py` przejdzie do configu w refaktorze. Klucze są po angielsku
+- Wartości, które się stroi (progi, czasy, kąty, porty), trzymamy w `config.json`, nie w kodzie. Klucze są po angielsku
   i pogrupowane, np. `"camera": {"main": 0, "fpv": 1}`.
 - `config.json` jest wspólny. `config.local.json` jest per komputer, poza gitem, i nadpisuje wspólny.
 - Odczyt przez `load_config()`. Ustawienia konkretnego komputera zapisuje `save_local()` do `config.local.json`.

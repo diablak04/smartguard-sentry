@@ -1,7 +1,7 @@
 # Sentry: sprzęt, złote zasady, protokół ESP32
 
-> **Kiedy czytać:** przed zmianą w `firmware/**`, w module wieżyczki (`turret_controller.py`), w IFF/BLE
-> (`ble_scanner.py`) i przed każdą pracą przy okablowaniu. Właściciel obszaru: PO.
+> **Kiedy czytać:** przed zmianą w `firmware/**`, w module wieżyczki (`smartguard/turret.py`), w IFF/BLE
+> (`smartguard/ble_scanner.py`) i przed każdą pracą przy okablowaniu. Właściciel obszaru: PO.
 
 ## Złote zasady (NIE łamać)
 1. **Serwa max 6 V**: ustaw XL4015 miernikiem PRZED podłączeniem serw.
@@ -13,7 +13,7 @@
 7. Kąty serw i czas impulsu strojone w `config.json`, nie w kodzie Pythona (`docs/agents/code.md` § Konfiguracja).
 
 ## Protokół PC ↔ ESP32 (UART 115200)
-- PC → ESP32: `AIM:<pan>,<tilt>` · `FIRE:<ms>` · `LASER:0/1` · `BUZZ` (działają w `turret_controller.py` i firmware)
+- PC → ESP32: `AIM:<pan>,<tilt>` · `FIRE:<ms>` · `LASER:0/1` · `BUZZ` (działają w `smartguard/turret.py` i firmware)
   · `SCAN:ON/OFF` (jeszcze nie ma).
 - ESP32 → PC: `IFF:<0/1>,<rssi>`: swój widoczny (brelok BLE) + siła sygnału (jeszcze nie ma; stan w
   `docs/project/decisions.md` § D-01 (skan BLE na ESP32)).
