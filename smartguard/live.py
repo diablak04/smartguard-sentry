@@ -6,7 +6,7 @@ dzieki czemu dziala bez sprzetu. Celowanie: srodek korpusu GLOWNEGO celu
 (najwiekszy w strefie), wygladzony (EMA), zeby celownik nie skakal.
 
 UWAGA: strefa jest w widoku kamery. Najpierw skalibruj ja pod SWOJ widok
-(calibrate_zone.py), potem uruchom ten plik.
+(python main.py calibrate), potem uruchom ten tryb (python main.py).
 
 Okno — sterowanie:  's' = swoj/wrog   'm' = mute   'q' = wyjscie
 """
@@ -34,7 +34,7 @@ STATE_COLORS = {
 }
 
 
-def main():
+def run() -> None:
     setup_logging()
     cfg = load_config()
     zone_norm, servo = cfg["zone"], cfg["servo"]
@@ -122,6 +122,3 @@ def main():
     cv2.destroyAllWindows()
     turret.close()
 
-
-if __name__ == "__main__":
-    main()

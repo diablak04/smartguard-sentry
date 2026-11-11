@@ -21,7 +21,7 @@ def on_mouse(event, x, y, flags, param):
         points.append((x, y))
 
 
-def main():
+def run() -> None:
     config = load_config()
     cam = Camera(config["camera"]["main"]).start()
     time.sleep(1.0)
@@ -59,6 +59,3 @@ def main():
     cam.stop()
     cv2.destroyAllWindows()
 
-
-if __name__ == "__main__":
-    main()

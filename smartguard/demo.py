@@ -6,7 +6,7 @@ from smartguard.config import load_config
 from smartguard.state_machine import SmartGuard, setup_logging
 
 
-def main() -> None:
+def run() -> None:
     setup_logging()
     config = load_config()
     sg = SmartGuard(config)
@@ -14,6 +14,3 @@ def main() -> None:
     scenario = [(False, False)] + [(True, False)] * 6 + [(False, False)] * 4
     sg.run_scenario(scenario)
 
-
-if __name__ == "__main__":
-    main()

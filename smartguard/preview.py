@@ -3,7 +3,7 @@
 Czerwona ramka = osoba stoi W STREFIE (zagrozenie).
 Szara ramka    = osoba poza strefa (ignorowana).
 
-Uruchom:  .venv\\Scripts\\python.exe detection_preview.py
+Uruchom:  python main.py preview
 Wyjscie:  klawisz 'q' w oknie.
 """
 import time
@@ -14,7 +14,7 @@ from smartguard.config import load_config
 from smartguard.detector import Detector
 
 
-def main():
+def run() -> None:
     config = load_config()
     zone_norm = config["zone"]
 
@@ -52,6 +52,3 @@ def main():
     cam.stop()
     cv2.destroyAllWindows()
 
-
-if __name__ == "__main__":
-    main()
