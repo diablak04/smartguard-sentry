@@ -5,7 +5,7 @@
 Closes #
 
 ## Jak sprawdzone
-<!-- komenda + wynik, np. `python main.py` (tryb SIM), `python demo.py` (bez kamery), nagranie, test -->
+<!-- komenda + wynik, np. `python main.py` (tryb SIM), `python main.py demo` (bez kamery), nagranie, test -->
 
 ## Czego nie sprawdzono
 

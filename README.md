@@ -40,12 +40,12 @@ Wymagany Python 3.13. Sprzęt niepotrzebny: wieżyczka działa w trybie symulacj
 ```bat
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe demo.py
+.venv\Scripts\python.exe main.py demo
 ```
 
-`demo.py` działa bez kamery (`Koniec scenariusza.` = instalacja działa). Cały system na żywo: `main.py`,
-wyznaczanie strefy: `calibrate_zone.py`, podgląd detekcji: `detection_preview.py`. Sterowanie każdego skryptu
-jest w nagłówku jego pliku.
+`main.py demo` działa bez kamery (`Koniec scenariusza.` = instalacja działa). Pozostałe tryby: `python main.py`
+(system na żywo), `calibrate` (wyznaczanie strefy), `preview` (podgląd detekcji); lista: `python main.py --help`.
+Sterowanie każdego trybu jest w nagłówku jego pliku w `smartguard/`.
 
 ## Konfiguracja
 

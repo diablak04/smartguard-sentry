@@ -32,12 +32,13 @@ dopisujemy nową, a w starej ustawiamy status „zastąpiona przez D-xx”. Bez 
 - **Odrzucone:** dongiel USB Bluetooth do PC: dodatkowy zakup, a skan i tak lepiej robić przy wieżyczce,
   bo RSSI mierzony przy niej lepiej oddaje odległość od celu.
 - **Skutki** (stan na 2026-11-11): skan BLE działa w szkicu testowym `firmware/ble_test`. W głównym firmware i po stronie PC
-  odczytu `IFF:` jeszcze nie ma; na razie `main.py` przełącza swój/wróg klawiszem `s`. `smartguard/ble_scanner.py` (`bleak`)
+  odczytu `IFF:` jeszcze nie ma; na razie tryb na żywo (`smartguard/live.py`) przełącza swój/wróg klawiszem `s`. `smartguard/ble_scanner.py` (`bleak`)
   zostaje tylko jako zapas dla komputera z Bluetooth. Na liście zakupów jest brelok BLE ze stałym MAC.
 
 <a id="d-02"></a>
 ## D-02: Konwencja kodu i struktura folderów (2026-11-11, SM)
-- **Status:** przyjęta (konwencja w PR #4, przeniesienie kodu w PR refaktoru, issue #10).
+- **Status:** przyjęta (konwencja w PR #4, przeniesienie kodu w PR refaktoru, issue #10); układ skryptów
+  w korzeniu zastąpiony przez § D-04 (jedno wejście main.py).
 - **Dotyczy:** cały kod Python i konfiguracja (`config.json`); działanie programu się nie zmienia.
 - **Problem:** pliki generowane (`yolo11n.pt`, `smartguard.log`) trafiały do korzenia repo albo do folderu, z którego
   ktoś uruchomił program, bo ścieżki liczyły się od bieżącego katalogu. Nazwy w kodzie były mieszane PL/EN
@@ -67,3 +68,22 @@ dopisujemy nową, a w starej ustawiamy status „zastąpiona przez D-xx”. Bez 
   Claude Code pomija `AGENTS.md`; import w `CLAUDE.md` wczytuje oba pliki i nie zgłasza błędu, gdy `AGENTS.local.md` nie istnieje.
 - **Skutki:** kto miał `CLAUDE.local.md`, przemianowuje go na `AGENTS.local.md`. Surowy zapis sesji z 2026-11-09
   wyszedł z repo; jego trwała treść jest w § D-01, `docs/project/scope.md` (pomiar ~40 ms/klatkę) i `README.md` (uruchamianie).
+
+<a id="d-04"></a>
+## D-04: Jedno wejście `main.py` z trybami (2026-11-11, SM)
+- **Status:** przyjęta
+- **Dotyczy:** uruchamianie programu i układ korzenia repo; zastępuje część § D-02 (konwencja kodu) o skryptach w korzeniu.
+- **Problem:** po § D-02 (konwencja kodu) w korzeniu leżały cztery skrypty (`main.py`, `demo.py`, `calibrate_zone.py`,
+  `detection_preview.py`), bo skrypt uruchomiony z wnętrza pakietu nie widzi pakietu. Korzeń był przez to zatłoczony.
+- **Decyzja:** w korzeniu jeden `main.py`, który argumentem wybiera tryb: `live` (domyślny, także przycisk
+  Run Python File), `demo`, `calibrate`, `preview`. Logika trybów jest w pakiecie (`smartguard/live.py` itd.),
+  `main.py` tylko importuje wybrany moduł i woła `run()`. Podkomendy z `argparse` (biblioteka standardowa).
+- **Odrzucone:**
+  - cztery skrypty w korzeniu: działa, ale korzeń rośnie z każdym nowym narzędziem;
+  - `python -m smartguard.calibrate` bez skryptu w korzeniu: przycisk Run Python File nie działa bez dodatkowej
+    konfiguracji VS Code, a polecenia są dłuższe.
+- **Źródła:** dokumentacja Pythona `__main__` („most commonly … used to provide a command-line interface for a package”,
+  pliki wejścia krótkie, logika w modułach); The Hitchhiker's Guide to Python, „Structuring Your Project” (pakiet
+  w korzeniu, skrypty zarządzające typu `manage.py` w korzeniu); dokumentacja `argparse` (podkomendy, `add_subparsers()`).
+  Ten sam wzorzec ma Django: `python manage.py runserver`.
+- **Skutki:** nowe narzędzie = moduł w `smartguard/` z `run()` + jeden wpis w `MODES` w `main.py`.

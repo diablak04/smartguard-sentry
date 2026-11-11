@@ -22,11 +22,8 @@ Gdy liczba ma jednostkę, jednostka jest w nazwie: `fire_ms`, `cooldown_s`, `rss
 
 ```
 smartguard-sentry/
-├─ main.py                 system na żywo: kamera → detekcja → strefa → zdarzenie → alert (+ wieżyczka)
-├─ demo.py                 scenariusz bez kamery; „Koniec scenariusza.” = instalacja OK
-├─ calibrate_zone.py       wyznaczanie strefy chronionej
-├─ detection_preview.py    podgląd detekcji i strefy
-├─ smartguard/             kod aplikacji (pakiet); tych plików nie uruchamia się bezpośrednio
+├─ main.py                 jedyne wejście: python main.py [live | demo | calibrate | preview]
+├─ smartguard/             kod aplikacji (pakiet), w tym tryby live, demo, calibrate, preview
 ├─ tests/                  testy pytest
 ├─ firmware/               szkice ESP32 (nazwa folderu = nazwa pliku .ino)
 ├─ docs/                   dokumentacja (mapa: docs/README.md)
@@ -35,11 +32,12 @@ smartguard-sentry/
 └─ config.json, config.local.example.json, requirements.txt, .env.example, docker-compose.yml
 ```
 
-- W korzeniu są tylko skrypty do uruchomienia (▶ *Run Python File*) i konfiguracja. Skrypt w korzeniu tylko
-  wywołuje logikę, a sama logika jest w `smartguard/`. Nowych dokumentów nie kładziemy w korzeniu, tylko w `docs/`.
+- W korzeniu jest jeden skrypt, `main.py`, który tylko wybiera tryb; cała logika jest w `smartguard/`.
+  Nowy tryb = moduł w `smartguard/` z funkcją `run()` + wpis w `MODES` w `main.py` (`docs/project/decisions.md` § D-04 (jedno wejście main.py)).
+  Plików z `smartguard/` nie uruchamia się bezpośrednio. Nowych dokumentów nie kładziemy w korzeniu, tylko w `docs/`.
 - Importy absolutne od nazwy pakietu: `from smartguard.config import load_config`.
 - Nie używamy `src/`, `pyproject.toml` ani `pip install -e .`: uruchamiamy z folderu projektu, pakietu nie publikujemy.
-  Folder `scripts/` odpada, bo ▶ *Run Python File* uruchomiony w nim nie widzi pakietu (`ModuleNotFoundError`).
+  Skrypt uruchomiony z wnętrza pakietu albo z `scripts/` nie widzi pakietu (`ModuleNotFoundError`), stąd jedno wejście w korzeniu.
 - Testy uruchamiasz z folderu projektu przez `python -m pytest`. Samo `pytest` nie znajdzie pakietu.
 
 ## Pliki generowane i ścieżki

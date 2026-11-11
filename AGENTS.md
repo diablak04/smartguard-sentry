@@ -18,11 +18,11 @@ strzelająca wodą + rozpoznawanie swój/wróg (IFF) po breloku BLE (ESP32). Pyt
 | Obszar | Kod | Zasady | Dokumenty |
 |---|---|---|---|
 | Każda zmiana w Pythonie | `*.py`, `config*.json`, `requirements.txt` | `docs/agents/code.md` | `docs/project/decisions.md` § D-02 (konwencja kodu) |
-| Detekcja, strefa, potwierdzanie (UC-01) | `smartguard/capture.py`, `detector.py`, `zone.py`, `rules.py`, `calibrate_zone.py`, `detection_preview.py` | `docs/agents/code.md` | `docs/project/scope.md` § UC-01 Wykrywanie |
+| Detekcja, strefa, potwierdzanie (UC-01) | `smartguard/capture.py`, `detector.py`, `zone.py`, `rules.py`, `calibrate.py`, `preview.py` | `docs/agents/code.md` | `docs/project/scope.md` § UC-01 Wykrywanie |
 | Zapis zdarzeń: SQLite + zdjęcia | `smartguard/events.py` | `docs/agents/code.md` § Pliki generowane | `docs/project/scope.md` § UC-01 → zapis; `docs/project/team.md` § Co kto komu przekazuje |
 | Alert na Telegram (UC-02) | `smartguard/notifier.py` (do napisania), `.env` | `docs/agents/code.md` § Konfiguracja | `docs/project/scope.md` § UC-02 |
 | Panel WWW, logowanie, fałszywy alarm (UC-03, UC-04, UC-07) | `smartguard/api.py` (do napisania) | `docs/agents/code.md` | `docs/project/scope.md` § UC-03, § UC-04 |
-| Maszyna stanów, spięcie modułów | `main.py`, `demo.py`, `smartguard/state_machine.py` | `docs/agents/code.md` | `README.md` § Jak to działa |
+| Maszyna stanów, spięcie modułów | `main.py` (wybór trybu), `smartguard/live.py`, `demo.py`, `state_machine.py` | `docs/agents/code.md` | `README.md` § Jak to działa |
 | Wieżyczka, ESP32, IFF/BLE, okablowanie | `firmware/**`, `smartguard/turret.py`, `smartguard/ble_scanner.py` | `docs/agents/hardware.md` (+ `docs/agents/code.md` dla `*.py`) | `docs/project/decisions.md` § D-01 (skan BLE na ESP32); `docs/project/scope.md` § Sentry; `README.md` § ESP32 |
 | Dokumentacja na oddanie: architektura, ERD, UML, testy | `docs/design/**` | `docs/agents/docs.md` | `docs/README.md` § Dokumentacja na oddanie; `docs/project/scope.md` |
 | Instrukcje dla AI, dokumenty, notatki, zasady | `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/**` | `docs/agents/docs.md` | `docs/project/decisions.md` § D-03 (instrukcje dla AI) |
