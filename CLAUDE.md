@@ -12,12 +12,20 @@ Zespół: diablak04 (PO), DEV (Hardware), AxmBro (SM).
 Termin oddania: 24.01.2027.
 
 ## Gdzie co jest
-- **To repo:** `D:\smartguard\smartguard-app` — kod aplikacji (Python) + firmware ESP32.
+- **To repo:** kod aplikacji (Python) + firmware ESP32. Każdy klonuje gdzie chce — **nie wpisuj nigdzie ścieżek bezwzględnych** (np. `C:\...`); ścieżki w kodzie liczone od folderu projektu.
 - **GitHub:** https://github.com/diablak04/smartguard-sentry (publiczne; ochrona main TYMCZASOWO ZDJĘTA na czas solo-pracy — włączyć „PR + 1 approval" gdy zespół dołączy).
 - **Kanban:** https://github.com/users/diablak04/projects/1 (kolumny: Backlog / In Progress / Testing / Done; karty = Fazy+Sprinty z karty projektu).
 - **Dokumenty** (Downloads): `SmartGuard_Karta_Projektu_Sentry_Edition_v2.pdf` (formalna karta),
   `SmartGuard_Instrukcja_wykonawcza.pdf` (plan dzień-po-dniu + kod startowy).
-- **Symulacja CFD lufy:** `D:\smartguard\model\gotowe godot\simscale\` (OpenFOAM/SimScale).
+- **Symulacja CFD lufy:** poza repo, lokalnie u lidera (OpenFOAM/SimScale).
+
+## Praca w 3 osoby (zasady kodu)
+- `config.json` (w repo) = wspólne ustawienia. `config.local.json` (poza gitem) = ustawienia
+  TEGO komputera: kamera, port, strefa z kalibracji. Czytać zawsze przez `config.wczytaj_config()`,
+  zapisywać lokalne przez `config.zapisz_lokalnie()` — nigdy nie nadpisywać `config.json` z kodu.
+- Port ESP32 = `"auto"` (wykrywanie po USB w `turret_controller.py`) — bez wpisywania COM.
+- Moduły odseparowane interfejsem wg `docs/podzial_pracy.md`; nowe zależności dopisać do
+  `requirements.txt` z komentarzem, do czego są.
 
 ## Stos technologiczny
 - Python 3.11+: `ultralytics` (YOLO11n), `opencv-python`, `pyserial` (ESP32↔PC), `fastapi`+`uvicorn`, `requests`. (`bleak` tylko opcjonalny fallback — **IFF/BLE skanuje ESP32**, bo PC nie ma Bluetooth; patrz protokół.)
@@ -44,7 +52,7 @@ Awaryjnie `yolo11s` jeśli Nano gubi cele. Cel wydajności: 3–5 FPS na CPU, <2
 4. **ESP32 = logika 3,3 V** — laser przez tranzystor; MOSFET D4184 łapie 3,3 V.
 5. **Prąd pompki/serw NIE przez płytkę stykową** — bezpośrednie przewody.
 6. **Celować w korpus, nigdy w głowę** (BHP); impuls pompki max 200 ms.
-7. Konfiguracja w `config.json` — zero sztywnych wartości w kodzie.
+7. Konfiguracja w `config.json` (+ `config.local.json` per komputer) — zero sztywnych wartości w kodzie.
 
 ## Protokół PC ↔ ESP32 (UART 115200)
 PC→ESP32: `AIM:<pan>,<tilt>` · `FIRE:<ms>` · `LASER:0/1` · `BUZZ` · `SCAN:ON/OFF`
