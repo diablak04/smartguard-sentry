@@ -20,11 +20,10 @@ Termin oddania: 24.01.2027.
 - **Symulacja CFD lufy:** poza repo, lokalnie u lidera (OpenFOAM/SimScale).
 
 ## Praca zespołowa
-- **Git teraz (solo):** ochrona `main` wyłączona (brak reguły na GitHubie, stan 11.2026) — commit na `main`
-  albo na gałęzi `<type>/<short-description>`.
-- **Git gdy dołączy zespół:** włączyć ochronę `main` (PR + 1 approval lidera); każdy na gałęzi
-  `<type>/<short-description>` (Conventional Branch: `feat`/`fix`/`docs`/`chore`, kebab-case, np. `feat/web-panel`).
+- **Git (zespół 3 osób):** każdy na swojej gałęzi `<type>/<short-description>` (Conventional Branch:
+  `feat`/`fix`/`docs`/`chore`, kebab-case, np. `feat/web-panel`), do `main` tylko przez PR z 1 approval.
   Commity: Conventional Commits `<type>(<scope>): <opis>` — opis po polsku.
+  (Ochrona `main` na GitHubie w 11.2026 jeszcze wyłączona — do włączenia przez właściciela repo.)
 - **Kto co robi + interfejsy między modułami:** `docs/podzial_pracy.md`.
 - **Konfiguracja:** `config.json` wspólny, `config.local.json` per komputer (poza gitem). Czytać przez
   `config.wczytaj_config()`, zapisywać przez `config.zapisz_lokalnie()` — nigdy nie nadpisywać `config.json` z kodu.
