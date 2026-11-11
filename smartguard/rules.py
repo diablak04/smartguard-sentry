@@ -7,24 +7,24 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Potwierdzanie:
+class FrameConfirmation:
     """Anty-falszywy-alarm: cel liczy sie dopiero po N kolejnych klatkach w strefie.
 
     Jedna zgubiona klatka (cel poza strefa / brak detekcji) zeruje licznik —
     chroni przed pojedynczymi bledami YOLO.
     """
-    wymagane: int = 3
-    licznik: int = 0
+    required: int = 3
+    count: int = 0
 
-    def aktualizuj(self, cel_w_strefie: bool) -> bool:
-        """Zwraca True, gdy cel potwierdzony (>= 'wymagane' kolejnych klatek)."""
-        self.licznik = self.licznik + 1 if cel_w_strefie else 0
-        return self.licznik >= self.wymagane
+    def update(self, target_in_zone: bool) -> bool:
+        """Zwraca True, gdy cel potwierdzony (>= 'required' kolejnych klatek)."""
+        self.count = self.count + 1 if target_in_zone else 0
+        return self.count >= self.required
 
     def reset(self) -> None:
-        self.licznik = 0
+        self.count = 0
 
 
-def klasyfikuj_iff(iff_swoj: bool) -> str:
+def classify_iff(iff_friend: bool) -> str:
     """'FRIENDLY' gdy w poblizu jest 'swoj' (brelok BLE), inaczej 'FOE'."""
-    return "FRIENDLY" if iff_swoj else "FOE"
+    return "FRIENDLY" if iff_friend else "FOE"
