@@ -37,15 +37,24 @@ Dlaczego tak, a nie inaczej: [`docs/project/decisions.md`](docs/project/decision
 
 Wymagany Python 3.13. Sprzęt niepotrzebny: wieżyczka działa w trybie symulacji (SIM), wystarczy kamera.
 
+Instalacja (raz):
+
 ```bat
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe main.py demo
 ```
 
-`main.py demo` działa bez kamery (`Koniec scenariusza.` = instalacja działa). Pozostałe tryby: `python main.py`
-(system na żywo), `calibrate` (wyznaczanie strefy), `preview` (podgląd detekcji); lista: `python main.py --help`.
-Sterowanie każdego trybu jest w nagłówku jego pliku w `smartguard/`.
+Uruchamianie (z aktywnym `.venv`, w folderze projektu):
+
+```
+python main.py              system na żywo (to samo daje przycisk ▶ w VS Code)
+python main.py demo         bez kamery; „Koniec scenariusza.” = instalacja działa
+python main.py calibrate    wyznaczanie strefy chronionej
+python main.py preview      podgląd detekcji i strefy
+python main.py --help       lista trybów
+```
+
+Sterowanie w oknie (klawisze) opisuje nagłówek pliku danego trybu w `smartguard/`.
 
 ## Konfiguracja
 
