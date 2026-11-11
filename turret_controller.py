@@ -1,4 +1,4 @@
-"""Sterownik wiezyczki — wysyla komendy do ESP32 po UART (protokol z CLAUDE.md).
+"""Sterownik wiezyczki — wysyla komendy do ESP32 po UART (protokół: docs/agents/hardware.md § Protokół PC).
 
 Tryb SIM (bez sprzetu lub gdy brak portu): komendy sa tylko logowane — dzieki temu
 caly system mozna uruchomic i przetestowac bez fizycznej wiezyczki.
