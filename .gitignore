@@ -11,8 +11,10 @@ env/
 # Modele YOLO (duże pliki, pobierają się same)
 *.pt
 
-# Dane wygenerowane
-foto/*.jpg
+# Dane wygenerowane (docs/agents/code.md § Pliki generowane)
+models/
+logs/
+data/
 *.db
 *.log
 
