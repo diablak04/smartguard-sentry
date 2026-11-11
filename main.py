@@ -1,133 +1,128 @@
-"""Orkiestrator SmartGuard + maszyna stanow.
+"""Integracja na zywo (Faza 6) — caly system bez fizycznej wiezyczki.
 
-Faza 0: szkielet maszyny stanow + logging.
-Faza 2: potwierdzanie detekcji na N klatkach (anty-falszywka) + klasyfikacja swoj/wrog.
+Pelna petla: kamera -> YOLO -> strefa -> reguly -> maszyna stanow -> sterownik.
+Sterownik w trybie SIM tylko loguje (AIM na DEBUG, wiec konsola jest cicha),
+dzieki czemu dziala bez sprzetu. Celowanie: srodek korpusu GLOWNEGO celu
+(najwiekszy w strefie), wygladzony (EMA), zeby celownik nie skakal.
 
-Maszyna sterowana percepcja: krok(cel_w_strefie, iff_swoj) wykonuje JEDNO przejscie.
-Realne wejscia (kamera -> YOLO -> strefa -> IFF BLE) podepniemy w integracji (Faza 6);
-tu run() odgrywa scenariusz, zeby pokazac dzialanie bez sprzetu.
+UWAGA: strefa jest w widoku kamery. Najpierw skalibruj ja pod SWOJ widok
+(kalibracja_strefy.py), potem uruchom ten plik.
+
+Okno — sterowanie:  's' = swoj/wrog   'm' = mute   'q' = wyjscie
 """
-import logging
-from enum import Enum, auto
+import time
+import cv2
 
+from capture import Camera
 from config import wczytaj_config
-from rules import Potwierdzanie, klasyfikuj_iff
+from detector import Detector
+from turret_controller import TurretController
+from main import SmartGuard, konfiguruj_logging
+import zona
+
+KROK_CO_S = 0.25  # maszyna stanow + celowanie krokuja ~4x/s
+EMA = 0.4         # wygladzanie celownika (0=zamrozony, 1=bez wygladzania)
 
 
-class Stan(Enum):
-    IDLE = auto()        # czuwanie, strefa pusta
-    PATROL = auto()      # ruch wahadlowy (F10)
-    DETECTED = auto()    # YOLO wykrylo czlowieka w strefie
-    CONFIRMING = auto()  # potwierdzanie na N klatkach
-    FRIENDLY = auto()    # IFF: SWOJ -> blokada ognia
-    FOE = auto()         # IFF: WROG -> eskalacja
-    ENGAGE = auto()      # celowanie + strzal
-    COOLDOWN = auto()    # przerwa po strzale
+def mapuj(v, a0, a1, b0, b1):
+    return b0 + (v - a0) * (b1 - b0) / (a1 - a0)
 
 
-PRZEJSCIA = {
-    Stan.IDLE:       [Stan.PATROL, Stan.DETECTED],
-    Stan.PATROL:     [Stan.DETECTED, Stan.IDLE],
-    Stan.DETECTED:   [Stan.CONFIRMING, Stan.IDLE],
-    Stan.CONFIRMING: [Stan.FRIENDLY, Stan.FOE, Stan.IDLE],
-    Stan.FRIENDLY:   [Stan.IDLE],
-    Stan.FOE:        [Stan.ENGAGE],
-    Stan.ENGAGE:     [Stan.COOLDOWN],
-    Stan.COOLDOWN:   [Stan.IDLE, Stan.PATROL],
+def pole(box):
+    return (box[2] - box[0]) * (box[3] - box[1])
+
+
+KOLOR_STANU = {
+    "IDLE": (180, 180, 180), "DETECTED": (0, 200, 255), "CONFIRMING": (0, 200, 255),
+    "FRIENDLY": (0, 220, 0), "FOE": (0, 0, 255), "ENGAGE": (0, 0, 255), "COOLDOWN": (0, 140, 255),
 }
 
 
-def konfiguruj_logging() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        datefmt="%H:%M:%S",
-        handlers=[logging.StreamHandler(),
-                  logging.FileHandler("smartguard.log", encoding="utf-8")],
-    )
-
-
-class SmartGuard:
-    def __init__(self, config: dict, cooldown_ticks: int = 3):
-        self.config = config
-        self.stan = Stan.IDLE
-        self.muted = False
-        self.fire_ms = config.get("fire_ms", 200)
-        self.potw = Potwierdzanie(wymagane=config.get("potwierdzenie_klatek", 3))
-        # W realu cooldown to czas (config['cooldown_s']); w szkielecie liczymy w tickach.
-        self.cooldown_ticks = cooldown_ticks
-        self._cooldown = 0
-        self.log = logging.getLogger("smartguard")
-
-    def _przejdz(self, nowy: Stan) -> None:
-        if nowy in PRZEJSCIA[self.stan]:
-            self.log.info("Stan: %s -> %s", self.stan.name, nowy.name)
-            self.stan = nowy
-        else:
-            self.log.warning("Niedozwolone przejscie: %s -> %s", self.stan.name, nowy.name)
-
-    def krok(self, cel_w_strefie: bool, iff_swoj: bool):
-        """Jedno przejscie maszyny na podstawie percepcji. Zwraca akcje albo None."""
-        akcja = None
-        st = self.stan
-
-        if st == Stan.IDLE:
-            if cel_w_strefie:
-                self._przejdz(Stan.DETECTED)
-
-        elif st == Stan.DETECTED:
-            self.potw.reset()
-            self._przejdz(Stan.CONFIRMING)
-
-        elif st == Stan.CONFIRMING:
-            if not cel_w_strefie:
-                self._przejdz(Stan.IDLE)                      # cel zniknal = falszywy alarm
-            elif self.potw.aktualizuj(True):
-                docelowy = klasyfikuj_iff(iff_swoj)
-                self.log.info("Potwierdzony po %d klatkach -> %s", self.potw.wymagane, docelowy)
-                self._przejdz(Stan.FRIENDLY if docelowy == "FRIENDLY" else Stan.FOE)
-
-        elif st == Stan.FRIENDLY:
-            self.log.info("SWOJ w strefie -> BLOKADA OGNIA")
-            self._przejdz(Stan.IDLE)
-
-        elif st == Stan.FOE:
-            self._przejdz(Stan.ENGAGE)
-
-        elif st == Stan.ENGAGE:
-            if self.muted:
-                self.log.warning("ENGAGE, ale MUTED -> bez strzalu")
-            else:
-                self.log.warning("STRZAL %d ms (cel: korpus, nie glowa)", self.fire_ms)
-                akcja = ("FIRE", self.fire_ms)
-            self._cooldown = self.cooldown_ticks
-            self._przejdz(Stan.COOLDOWN)
-
-        elif st == Stan.COOLDOWN:
-            self._cooldown -= 1
-            if self._cooldown <= 0:
-                self._przejdz(Stan.IDLE)
-
-        return akcja
-
-    def run_scenariusz(self, scenariusz) -> None:
-        """Odgrywa liste (cel_w_strefie, iff_swoj) — demonstracja bez sprzetu."""
-        self.log.info("SmartGuard start. Stan poczatkowy: %s", self.stan.name)
-        for i, (cel, swoj) in enumerate(scenariusz, 1):
-            akcja = self.krok(cel, swoj)
-            self.log.info("  [t%02d] cel=%s swoj=%s | stan=%s%s",
-                          i, int(cel), int(swoj), self.stan.name,
-                          f" | AKCJA={akcja}" if akcja else "")
-        self.log.info("Koniec scenariusza.")
-
-
-def main() -> None:
+def main():
     konfiguruj_logging()
-    config = wczytaj_config()
-    sg = SmartGuard(config)
-    # Demo: intruz (WROG) wchodzi w strefe i zostaje w niej kilka klatek.
-    scenariusz = [(False, False)] + [(True, False)] * 6 + [(False, False)] * 4
-    sg.run_scenariusz(scenariusz)
+    cfg = wczytaj_config()
+    strefa, serw = cfg["strefa"], cfg["serwo"]
+
+    cam = Camera(cfg.get("kamera_glowna", 0)).start()
+    det = Detector(cfg["yolo_model"], cfg["yolo_prog_pewnosci"])
+    turret = TurretController(port=cfg.get("esp32_port"), sim=True)  # SIM: bez sprzetu
+    sg = SmartGuard(cfg, cooldown_ticks=8)
+
+    iff_swoj = False
+    ostatni_krok = 0.0
+    aim = (90, 40)
+    sc = None          # wygladzony srodek celu (smoothed center)
+    flash_do = 0.0
+    time.sleep(1.0)
+    print("Okno: 's'=swoj/wrog  'm'=mute  'q'=wyjscie  (konsola: stany + STRZAL)")
+
+    while True:
+        frame = cam.read()
+        if frame is None:
+            continue
+        h, w = frame.shape[:2]
+        zona.rysuj_strefe(frame, strefa)
+
+        detekcje = det.wykryj_ludzi(frame)
+        w_strefie = [b for b in detekcje
+                     if zona.punkt_w_strefie(zona.stopa_celu(b), strefa, w, h)]
+        glowny = max(w_strefie, key=pole) if w_strefie else None
+        cel_w_strefie = glowny is not None
+
+        # Rysuj: pozostale cienko-szaro, glowny cel grubo-czerwono
+        for b in detekcje:
+            if b is glowny:
+                continue
+            cv2.rectangle(frame, (b[0], b[1]), (b[2], b[3]), (120, 120, 120), 1)
+        if glowny:
+            x1, y1, x2, y2, conf = glowny
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            cv2.putText(frame, f"CEL {conf:.2f}", (x1, y1 - 8),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+            sc = (cx, cy) if sc is None else (int((1 - EMA) * sc[0] + EMA * cx),
+                                              int((1 - EMA) * sc[1] + EMA * cy))
+            cv2.drawMarker(frame, sc, (0, 255, 255), cv2.MARKER_CROSS, 26, 2)
+        else:
+            sc = None
+
+        # Maszyna stanow + celowanie w stalym tempie
+        if time.time() - ostatni_krok >= KROK_CO_S:
+            akcja = sg.krok(cel_w_strefie, iff_swoj)
+            ostatni_krok = time.time()
+            if sc is not None:
+                aim = (int(mapuj(sc[0], 0, w, serw["pan_min"], serw["pan_max"])),
+                       int(mapuj(sc[1], 0, h, serw["tilt_max"], serw["tilt_min"])))
+                turret.celuj(*aim)
+            if akcja and akcja[0] == "FIRE":
+                turret.ogien(akcja[1])
+                flash_do = time.time() + 0.8
+
+        # --- HUD ---
+        st = sg.stan.name
+        cv2.rectangle(frame, (0, 0), (w, 70), (0, 0, 0), -1)
+        cv2.putText(frame, f"STAN: {st}", (10, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.9,
+                    KOLOR_STANU.get(st, (255, 255, 255)), 2)
+        cv2.putText(frame, f"IFF: {'SWOJ' if iff_swoj else 'WROG'}   MUTE: {'TAK' if sg.muted else 'nie'}   AIM: {aim[0]},{aim[1]}",
+                    (10, 56), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 1)
+        cv2.putText(frame, "s=swoj/wrog  m=mute  q=wyjscie", (10, h - 12),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+        if time.time() < flash_do:
+            cv2.putText(frame, "STRZAL! 200ms", (w // 2 - 170, h // 2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.4, (0, 0, 255), 4)
+
+        cv2.imshow("SmartGuard - integracja (SIM)", frame)
+        k = cv2.waitKey(1) & 0xFF
+        if k == ord("q"):
+            break
+        elif k == ord("s"):
+            iff_swoj = not iff_swoj
+        elif k == ord("m"):
+            sg.muted = not sg.muted
+
+    cam.stop()
+    cv2.destroyAllWindows()
+    turret.zamknij()
 
 
 if __name__ == "__main__":
