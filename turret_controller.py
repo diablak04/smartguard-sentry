@@ -30,7 +30,8 @@ class TurretController:
 
     def _wyslij(self, cmd: str) -> None:
         if self.sim:
-            self.log.info("[SIM] -> %s", cmd)
+            # AIM leci bardzo czesto -> DEBUG (nie zasmieca konsoli); reszta INFO
+            (self.log.debug if cmd.startswith("AIM") else self.log.info)("[SIM] -> %s", cmd)
         else:
             self.ser.write((cmd + "\n").encode())
 
