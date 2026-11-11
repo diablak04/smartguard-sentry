@@ -10,12 +10,11 @@ UWAGA: strefa jest w widoku kamery. Najpierw skalibruj ja pod SWOJ widok
 
 Okno — sterowanie:  's' = swoj/wrog   'm' = mute   'q' = wyjscie
 """
-import json
 import time
-from pathlib import Path
 import cv2
 
 from capture import Camera
+from config import wczytaj_config
 from detector import Detector
 from turret_controller import TurretController
 from main import SmartGuard, konfiguruj_logging
@@ -41,7 +40,7 @@ KOLOR_STANU = {
 
 def main():
     konfiguruj_logging()
-    cfg = json.loads(Path("config.json").read_text(encoding="utf-8"))
+    cfg = wczytaj_config()
     strefa, serw = cfg["strefa"], cfg["serwo"]
 
     cam = Camera(cfg.get("kamera_glowna", 0)).start()
