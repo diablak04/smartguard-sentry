@@ -13,8 +13,19 @@ zdarzenie SQLite + zdjęcie → alert Telegram → panel; **to jest oceniane**),
 Najpierw baza, bez overengineeringu; Sentry nie może jej psuć. Szczegóły + odstępstwa od karty: `docs/zakres.md`.
 
 Zespół: `diablak04` (PO, hardware + rdzeń wizji + Sentry), `AxmBro` (SM, panel WWW + integracja),
-DEV (Telegram + testy). Szczegóły: `docs/podzial_pracy.md`. **Repo publiczne: bez imion i nazwisk — tylko role i loginy GitHub.**
+DEV (Telegram + testy). Szczegóły: `docs/podzial_pracy.md`.
 Termin oddania: 24.01.2027.
+
+## Dane osobowe — repo jest PUBLICZNE (NIE łamać)
+Dotyczy plików, komentarzy, commitów, opisów PR i issue.
+1. **Bez imion i nazwisk** (zespół, prowadząca, osoby trzecie). Tylko role (PO / SM / DEV) i loginy GitHub.
+2. **Bez kontaktów i sekretów:** e-maile, telefony, tokeny, zawartość `.env`, prawdziwe MAC breloków, adresy kamer z hasłem.
+3. **Bez ścieżek z nazwą użytkownika** (`C:\Users\<ktoś>\...`).
+4. **Bez zdjęć zdarzeń, nagrań testowych i bazy** — widać na nich ludzi (RODO). Leżą w `events/`, `videos/`, `*.db`, poza gitem.
+5. **Przed każdym commitem i PR:** przejrzyj `git diff --cached`. Czujnik u siebie (raz na komputer):
+   w `.git/info/zakazane.txt` wpisz nazwiska do blokowania (jedno w linii, bez pustych linii — plik nie trafia do repo),
+   sprawdzenie: `git diff --cached | grep '^+' | grep -i -F -f .git/info/zakazane.txt` → ma nic nie zwrócić.
+6. Wyciek już w historii → zgłoś PO; nie „poprawiaj” go nowym commitem (historia zostaje).
 
 ## Gdzie co jest
 - **To repo:** kod aplikacji (Python) + firmware ESP32. Każdy klonuje gdzie chce — **nie wpisuj nigdzie ścieżek bezwzględnych** (np. `C:\...`); ścieżki w kodzie liczone od folderu projektu.
