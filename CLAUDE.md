@@ -16,8 +16,12 @@ Zespół: `diablak04` (PO, hardware + rdzeń wizji + Sentry), `AxmBro` (SM, pane
 DEV (Telegram + testy). Szczegóły: `docs/podzial_pracy.md`.
 Termin oddania: 24.01.2027.
 
-## Dane osobowe — repo jest PUBLICZNE (NIE łamać)
-Dotyczy plików, komentarzy, commitów, opisów PR i issue.
+## Repo jest PUBLICZNE (NIE łamać)
+Projekt na studia (IO), ale to, co wypychamy, widzi każdy: kod, docs, instrukcje, commity, PR, issue.
+**Wypychamy tylko rzeczy gotowe do pokazania, jak w pracy:** działa, sprawdzone, krótko opisane, bez śmieci
+(pliki tymczasowe, zakomentowany kod, debugowe printy, TODO bez karty na Kanbanie). Lepiej mniej, ale porządnie.
+
+Dane osobowe:
 1. **Bez imion i nazwisk** (zespół, prowadząca, osoby trzecie). Tylko role (PO / SM / DEV) i loginy GitHub.
 2. **Bez kontaktów i sekretów:** e-maile, telefony, tokeny, zawartość `.env`, prawdziwe MAC breloków, adresy kamer z hasłem.
 3. **Bez ścieżek z nazwą użytkownika** (`C:\Users\<ktoś>\...`).
@@ -26,6 +30,11 @@ Dotyczy plików, komentarzy, commitów, opisów PR i issue.
    w `.git/info/zakazane.txt` wpisz nazwiska do blokowania (jedno w linii, bez pustych linii — plik nie trafia do repo),
    sprawdzenie: `git diff --cached | grep '^+' | grep -i -F -f .git/info/zakazane.txt` → ma nic nie zwrócić.
 6. Wyciek już w historii → zgłoś PO; nie „poprawiaj” go nowym commitem (historia zostaje).
+
+## Twoje prywatne notatki dla Claude Code — `CLAUDE.local.md`
+Każdy może mieć w korzeniu repo własny `CLAUDE.local.md`. Claude Code czyta go automatycznie obok tego pliku,
+a git go ignoruje (`.gitignore`), więc nie trafia na GitHuba. Wpisz tam to, co tylko twoje: rolę, ścieżki do własnych
+notatek i materiałów, preferencje pracy. Tam wolno ścieżki bezwzględne i nazwiska. Tutaj nie.
 
 ## Gdzie co jest
 - **To repo:** kod aplikacji (Python) + firmware ESP32. Każdy klonuje gdzie chce — **nie wpisuj nigdzie ścieżek bezwzględnych** (np. `C:\...`); ścieżki w kodzie liczone od folderu projektu.
