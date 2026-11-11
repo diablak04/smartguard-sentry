@@ -12,12 +12,23 @@ Zespół: Wiktor Makowski (PO), Jakub Marchewka (Hardware), Bartłomiej Mucha (S
 Termin oddania: 24.01.2027.
 
 ## Gdzie co jest
-- **To repo:** `D:\smartguard\smartguard-app` — kod aplikacji (Python) + firmware ESP32.
-- **GitHub:** https://github.com/diablak04/smartguard-sentry (publiczne; ochrona main TYMCZASOWO ZDJĘTA na czas solo-pracy — włączyć „PR + 1 approval" gdy zespół dołączy).
+- **To repo:** kod aplikacji (Python) + firmware ESP32. Każdy klonuje gdzie chce — **nie wpisuj nigdzie ścieżek bezwzględnych** (np. `C:\...`); ścieżki w kodzie liczone od folderu projektu.
+- **GitHub:** https://github.com/diablak04/smartguard-sentry (publiczne; zasady Git — „Praca zespołowa” niżej).
 - **Kanban:** https://github.com/users/diablak04/projects/1 (kolumny: Backlog / In Progress / Testing / Done; karty = Fazy+Sprinty z karty projektu).
 - **Dokumenty** (Downloads): `SmartGuard_Karta_Projektu_Sentry_Edition_v2.pdf` (formalna karta),
   `SmartGuard_Instrukcja_wykonawcza.pdf` (plan dzień-po-dniu + kod startowy).
-- **Symulacja CFD lufy:** `D:\smartguard\model\gotowe godot\simscale\` (OpenFOAM/SimScale).
+- **Symulacja CFD lufy:** poza repo, lokalnie u lidera (OpenFOAM/SimScale).
+
+## Praca zespołowa
+- **Git (zespół 3 osób):** każdy na swojej gałęzi `<type>/<short-description>` (Conventional Branch:
+  `feat`/`fix`/`docs`/`chore`, kebab-case, np. `feat/web-panel`), do `main` tylko przez PR z 1 approval.
+  Commity: Conventional Commits `<type>(<scope>): <opis>` — opis po polsku.
+  (Ochrona `main` na GitHubie w 11.2026 jeszcze wyłączona — do włączenia przez właściciela repo.)
+- **Kto co robi + interfejsy między modułami:** `docs/podzial_pracy.md`.
+- **Konfiguracja:** `config.json` wspólny, `config.local.json` per komputer (poza gitem). Czytać przez
+  `config.wczytaj_config()`, zapisywać przez `config.zapisz_lokalnie()` — nigdy nie nadpisywać `config.json` z kodu.
+  Port ESP32 = `"auto"` (wykrywanie po USB w `turret_controller.py`).
+- **Nowa biblioteka** → `requirements.txt` z komentarzem, do czego jest.
 
 ## Stos technologiczny
 - Python 3.11+: `ultralytics` (YOLO11n), `opencv-python`, `pyserial` (ESP32↔PC), `fastapi`+`uvicorn`, `requests`. (`bleak` tylko opcjonalny fallback — **IFF/BLE skanuje ESP32**, bo PC nie ma Bluetooth; patrz protokół.)
@@ -44,7 +55,7 @@ Awaryjnie `yolo11s` jeśli Nano gubi cele. Cel wydajności: 3–5 FPS na CPU, <2
 4. **ESP32 = logika 3,3 V** — laser przez tranzystor; MOSFET D4184 łapie 3,3 V.
 5. **Prąd pompki/serw NIE przez płytkę stykową** — bezpośrednie przewody.
 6. **Celować w korpus, nigdy w głowę** (BHP); impuls pompki max 200 ms.
-7. Konfiguracja w `config.json` — zero sztywnych wartości w kodzie.
+7. Konfiguracja w `config.json` (+ `config.local.json` per komputer) — zero sztywnych wartości w kodzie.
 
 ## Protokół PC ↔ ESP32 (UART 115200)
 PC→ESP32: `AIM:<pan>,<tilt>` · `FIRE:<ms>` · `LASER:0/1` · `BUZZ` · `SCAN:ON/OFF`
@@ -55,6 +66,8 @@ Dzień 1 detekcja YOLO · 2 strefa+3 klatki · 3 IFF BLE · 4 elektronika+firmwa
 5 wieżyczka+woda · 6 Visual Servoing (integracja, pierwszy strzał) · 7 SQLite+zdjęcia+n8n+Telegram ·
 8 panel WWW · 9 tryby+BHP · 10 testy+oddanie. Dni 1–3 bez sprzętu (robić od razu).
 
-## Stan na teraz
-Zrobione: repo + struktura + firmware szkic + Kanban. Następne: Sprint 1 — detekcja YOLO
-i skaner BLE (`detector.py`, `rules.py`), n8n lokalnie, bot Telegram.
+## Stan na teraz (11.2026)
+Zrobione (software, bez wieżyczki): detekcja YOLO, strefa + 3 klatki, maszyna stanów, IFF/BLE na ESP32,
+integracja na żywo w trybie SIM, config per komputer + auto-port ESP32, instrukcja instalacji.
+Czeka na sprzęt: serwa, zasilanie, pompka, pierwszy strzał. Następne bez sprzętu: n8n + Telegram,
+SQLite + zdjęcia (`events.py`), panel WWW. Szczegóły: README „Stan projektu”.

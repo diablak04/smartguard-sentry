@@ -14,7 +14,7 @@
 - **Reszta zespołu** dostaje moduły **odseparowane interfejsem** — jeśli zrobią je
   źle, demo dalej działa (po prostu bez historii / panelu / powiadomień).
 - Interfejs definiuje lider; zespół „wypełnia środek" wg podpisów funkcji i schematów.
-- Git: gałęzie `feature/<opis>` + **PR z 1 approval (lidera)** — nic nie wchodzi na
+- Git: gałęzie `<type>/<short-description>` (np. `feat/web-panel`) + **PR z 1 approval (lidera)** — nic nie wchodzi na
   `main` bez przeglądu.
 
 ---

@@ -21,3 +21,6 @@ foto/*.jpg
 .idea/
 .DS_Store
 Thumbs.db
+
+# Ustawienia tylko tego komputera (kamera, port, strefa)
+config.local.json
