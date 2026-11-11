@@ -28,7 +28,7 @@
     "tilt_min": 20,
     "tilt_max": 60
   },
-  "esp32_port": "COM3",
+  "esp32_port": "auto",
   "esp32_baud": 115200,
   "iff": {
     "brelok_mac": "AA:BB:CC:11:22:33",
