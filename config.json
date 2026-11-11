@@ -32,6 +32,10 @@
     "tilt_min": 20,
     "tilt_max": 60
   },
+  "aim": {
+    "step_every_s": 0.25,
+    "smoothing": 0.4
+  },
   "esp32": {
     "port": "auto",
     "baud": 115200

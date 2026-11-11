@@ -20,10 +20,6 @@ from smartguard.detector import Detector
 from smartguard.state_machine import SmartGuard, setup_logging
 from smartguard.turret import TurretController
 
-STEP_EVERY_S = 0.25  # maszyna stanow + celowanie krokuja ~4x/s
-EMA = 0.4            # wygladzanie celownika (0=zamrozony, 1=bez wygladzania)
-
-
 def map_range(v, a0, a1, b0, b1):
     return b0 + (v - a0) * (b1 - b0) / (a1 - a0)
 
@@ -42,15 +38,17 @@ def main():
     setup_logging()
     cfg = load_config()
     zone_norm, servo = cfg["zone"], cfg["servo"]
+    step_every_s = cfg["aim"]["step_every_s"]  # maszyna stanow + celowanie krokuja w tym tempie
+    ema = cfg["aim"]["smoothing"]              # wygladzanie celownika (0=zamrozony, 1=bez wygladzania)
 
     cam = Camera(cfg["camera"]["main"]).start()
     det = Detector(cfg["yolo"]["model"], cfg["yolo"]["confidence"])
-    turret = TurretController(port=cfg["esp32"]["port"], sim=True)  # SIM: bez sprzetu
+    turret = TurretController(port=cfg["esp32"]["port"], baud=cfg["esp32"]["baud"], sim=True)  # SIM: bez sprzetu
     sg = SmartGuard(cfg, cooldown_ticks=8)
 
     iff_friend = False
     last_step = 0.0
-    aim = (90, 40)
+    aim = ((servo["pan_min"] + servo["pan_max"]) // 2, (servo["tilt_min"] + servo["tilt_max"]) // 2)  # srodek zakresu serw
     sc = None          # wygladzony srodek celu (smoothed center)
     flash_until = 0.0
     time.sleep(1.0)
@@ -80,14 +78,14 @@ def main():
             cv2.putText(frame, f"CEL {conf:.2f}", (x1, y1 - 8),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
             cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-            sc = (cx, cy) if sc is None else (int((1 - EMA) * sc[0] + EMA * cx),
-                                              int((1 - EMA) * sc[1] + EMA * cy))
+            sc = (cx, cy) if sc is None else (int((1 - ema) * sc[0] + ema * cx),
+                                              int((1 - ema) * sc[1] + ema * cy))
             cv2.drawMarker(frame, sc, (0, 255, 255), cv2.MARKER_CROSS, 26, 2)
         else:
             sc = None
 
         # Maszyna stanow + celowanie w stalym tempie
-        if time.time() - last_step >= STEP_EVERY_S:
+        if time.time() - last_step >= step_every_s:
             action = sg.step(target_in_zone, iff_friend)
             last_step = time.time()
             if sc is not None:
@@ -108,7 +106,7 @@ def main():
         cv2.putText(frame, "s=swoj/wrog  m=mute  q=wyjscie", (10, h - 12),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
         if time.time() < flash_until:
-            cv2.putText(frame, "STRZAL! 200ms", (w // 2 - 170, h // 2),
+            cv2.putText(frame, f"STRZAL! {sg.fire_ms}ms", (w // 2 - 170, h // 2),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.4, (0, 0, 255), 4)
 
         cv2.imshow("SmartGuard - na zywo (SIM)", frame)
