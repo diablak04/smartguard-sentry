@@ -49,7 +49,7 @@ class SmartGuard:
         self.state = State.IDLE
         self.muted = False
         self.fire_ms = config.get("fire_ms", 200)
-        self.confirmation = FrameConfirmation(required=config.get("potwierdzenie_klatek", 3))
+        self.confirmation = FrameConfirmation(required=config.get("confirm_frames", 3))
         # W realu cooldown to czas (config['cooldown_s']); w szkielecie liczymy w tickach.
         self.cooldown_ticks = cooldown_ticks
         self._cooldown = 0

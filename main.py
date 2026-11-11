@@ -41,11 +41,11 @@ STATE_COLORS = {
 def main():
     setup_logging()
     cfg = load_config()
-    zone_norm, servo = cfg["strefa"], cfg["serwo"]
+    zone_norm, servo = cfg["zone"], cfg["servo"]
 
-    cam = Camera(cfg.get("kamera_glowna", 0)).start()
-    det = Detector(cfg["yolo_model"], cfg["yolo_prog_pewnosci"])
-    turret = TurretController(port=cfg.get("esp32_port"), sim=True)  # SIM: bez sprzetu
+    cam = Camera(cfg["camera"]["main"]).start()
+    det = Detector(cfg["yolo"]["model"], cfg["yolo"]["confidence"])
+    turret = TurretController(port=cfg["esp32"]["port"], sim=True)  # SIM: bez sprzetu
     sg = SmartGuard(cfg, cooldown_ticks=8)
 
     iff_friend = False

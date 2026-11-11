@@ -23,7 +23,7 @@ def on_mouse(event, x, y, flags, param):
 
 def main():
     config = load_config()
-    cam = Camera(config.get("kamera_glowna", 0)).start()
+    cam = Camera(config["camera"]["main"]).start()
     time.sleep(1.0)
     cv2.namedWindow("Kalibracja strefy")
     cv2.setMouseCallback("Kalibracja strefy", on_mouse)
@@ -53,7 +53,7 @@ def main():
             points.clear()
         elif k == ord("z") and len(points) >= 3:
             zone_norm = [[round(x / w, 3), round(y / h, 3)] for (x, y) in points]
-            save_local({"strefa": zone_norm})
+            save_local({"zone": zone_norm})
             print("Zapisano strefe do config.local.json:", zone_norm)
 
     cam.stop()

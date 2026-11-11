@@ -16,10 +16,10 @@ from smartguard.detector import Detector
 
 def main():
     config = load_config()
-    zone_norm = config["strefa"]
+    zone_norm = config["zone"]
 
-    cam = Camera(config.get("kamera_glowna", 0)).start()
-    det = Detector(config["yolo_model"], config["yolo_prog_pewnosci"])
+    cam = Camera(config["camera"]["main"]).start()
+    det = Detector(config["yolo"]["model"], config["yolo"]["confidence"])
     time.sleep(1.0)
     print("Nacisnij 'q' w oknie, zeby zakonczyc.")
 

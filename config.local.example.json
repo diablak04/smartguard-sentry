@@ -1,4 +1,8 @@
 {
-  "kamera_glowna": 0,
-  "esp32_port": "auto"
+  "camera": {
+    "main": 0
+  },
+  "esp32": {
+    "port": "auto"
+  }
 }
