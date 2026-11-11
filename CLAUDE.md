@@ -6,17 +6,35 @@
 ## Czym jest projekt
 Inteligentny system ochrony posesji (projekt na Inżynierię Oprogramowania, Informatyka rok II):
 detekcja ludzi (YOLO) → autonomiczna wieżyczka Pan-Tilt strzelająca wodą → identyfikacja
-swój/wróg (IFF po BLE) → powiadomienia (n8n + Telegram) → panel WWW (FastAPI).
+swój/wróg (IFF po BLE) → powiadomienia (Telegram, dodatkowo n8n) → panel WWW (FastAPI).
 
-Zespół: diablak04 (PO), DEV (Hardware), AxmBro (SM).
+**Dwie warstwy:** baza = przypadki użycia UC-01–04 + UC-07 z zatwierdzonych Scenariuszy (wykrycie w strefie →
+zdarzenie SQLite + zdjęcie → alert Telegram → panel; **to jest oceniane**), Sentry (wieżyczka, IFF, ESP32) = rozszerzenie.
+Najpierw baza, bez overengineeringu; Sentry nie może jej psuć. Szczegóły + odstępstwa od karty: `docs/zakres.md`.
+
+Zespół: `diablak04` (PO, hardware + rdzeń wizji + Sentry), `AxmBro` (SM, panel WWW + integracja),
+DEV (Telegram + testy). Szczegóły: `docs/podzial_pracy.md`.
 Termin oddania: 24.01.2027.
+
+## Dane osobowe — repo jest PUBLICZNE (NIE łamać)
+Dotyczy plików, komentarzy, commitów, opisów PR i issue.
+1. **Bez imion i nazwisk** (zespół, prowadząca, osoby trzecie). Tylko role (PO / SM / DEV) i loginy GitHub.
+2. **Bez kontaktów i sekretów:** e-maile, telefony, tokeny, zawartość `.env`, prawdziwe MAC breloków, adresy kamer z hasłem.
+3. **Bez ścieżek z nazwą użytkownika** (`C:\Users\<ktoś>\...`).
+4. **Bez zdjęć zdarzeń, nagrań testowych i bazy** — widać na nich ludzi (RODO). Leżą w `events/`, `videos/`, `*.db`, poza gitem.
+5. **Przed każdym commitem i PR:** przejrzyj `git diff --cached`. Czujnik u siebie (raz na komputer):
+   w `.git/info/zakazane.txt` wpisz nazwiska do blokowania (jedno w linii, bez pustych linii — plik nie trafia do repo),
+   sprawdzenie: `git diff --cached | grep '^+' | grep -i -F -f .git/info/zakazane.txt` → ma nic nie zwrócić.
+6. Wyciek już w historii → zgłoś PO; nie „poprawiaj” go nowym commitem (historia zostaje).
 
 ## Gdzie co jest
 - **To repo:** kod aplikacji (Python) + firmware ESP32. Każdy klonuje gdzie chce — **nie wpisuj nigdzie ścieżek bezwzględnych** (np. `C:\...`); ścieżki w kodzie liczone od folderu projektu.
 - **GitHub:** https://github.com/diablak04/smartguard-sentry (publiczne; zasady Git — „Praca zespołowa” niżej).
-- **Kanban:** https://github.com/users/diablak04/projects/1 (kolumny: Backlog / In Progress / Testing / Done; karty = Fazy+Sprinty z karty projektu).
-- **Dokumenty** (Downloads): `SmartGuard_Karta_Projektu_Sentry_Edition_v2.pdf` (formalna karta),
-  `SmartGuard_Instrukcja_wykonawcza.pdf` (plan dzień-po-dniu + kod startowy).
+- **Kanban:** https://github.com/users/diablak04/projects/1 (kolumny: Backlog / In Progress / Testing / Done; jedna karta = jedno wymaganie z karty projektu, np. `[5] Alert na Telegram`).
+- **Dokumenty formalne (zatwierdzone przez prowadzącą, nie edytujemy):** Karta Projektu IO i Scenariusze
+  przypadków użycia (PDF, poza repo). Odstępstwa od nich → `docs/zakres.md`.
+- **Dokumenty robocze Sentry** (poza repo): `SmartGuard_Karta_Projektu_Sentry_Edition_v2.pdf`,
+  `SmartGuard_Instrukcja_wykonawcza.pdf` (plan dzień-po-dniu, BOM).
 - **Symulacja CFD lufy:** poza repo, lokalnie u lidera (OpenFOAM/SimScale).
 
 ## Praca zespołowa
@@ -61,13 +79,6 @@ Awaryjnie `yolo11s` jeśli Nano gubi cele. Cel wydajności: 3–5 FPS na CPU, <2
 PC→ESP32: `AIM:<pan>,<tilt>` · `FIRE:<ms>` · `LASER:0/1` · `BUZZ` · `SCAN:ON/OFF`
 ESP32→PC: `IFF:<0/1>,<rssi>` — swój widoczny (brelok BLE) + siła sygnału. **Skan BLE robi ESP32** (ma wbudowane BLE; PC bez BT).
 
-## Plan realizacji (skrót — pełny w Instrukcji wykonawczej)
-Dzień 1 detekcja YOLO · 2 strefa+3 klatki · 3 IFF BLE · 4 elektronika+firmware ·
-5 wieżyczka+woda · 6 Visual Servoing (integracja, pierwszy strzał) · 7 SQLite+zdjęcia+n8n+Telegram ·
-8 panel WWW · 9 tryby+BHP · 10 testy+oddanie. Dni 1–3 bez sprzętu (robić od razu).
-
-## Stan na teraz (11.2026)
-Zrobione (software, bez wieżyczki): detekcja YOLO, strefa + 3 klatki, maszyna stanów, IFF/BLE na ESP32,
-integracja na żywo w trybie SIM, config per komputer + auto-port ESP32, instrukcja instalacji.
-Czeka na sprzęt: serwa, zasilanie, pompka, pierwszy strzał. Następne bez sprzętu: n8n + Telegram,
-SQLite + zdjęcia (`events.py`), panel WWW. Szczegóły: README „Stan projektu”.
+## Stan i plan
+Stan i kolejność prac: `docs/zakres.md` (najpierw rdzeń UC-01–04 + UC-07, potem reszta, Sentry równolegle u PO).
+Bieżące zadania: Kanban. Harmonogramów z datami nie trzymamy w repo — szybko się dezaktualizują.

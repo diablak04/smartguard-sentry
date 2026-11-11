@@ -1,116 +1,45 @@
-# SmartGuard: Sentry Edition — Podział pracy (3 osoby)
+# Podział pracy
 
-> Projekt na Inżynierię Oprogramowania (Informatyka, rok II).
-> Repo: `D:\smartguard\smartguard-app` · Termin oddania: 24.01.2027.
-> Ustalenie: rdzeń systemu i całe spięcie trzyma lider; dwie pozostałe osoby
-> dostają odseparowane, wymienne moduły na końcach przepływu.
+Zakres = przypadki użycia ze Scenariuszy (UC-01–04 + UC-07). Każdy UC ma jednego właściciela.
+Stan prac: `docs/zakres.md`. Bieżące zadania: Kanban.
 
----
+## Role
 
-## Filozofia podziału
+| Rola | GitHub | Odpowiada za |
+|---|---|---|
+| **PO** | `diablak04` | kolejność zadań, odbiór UC; **wykrywanie (UC-01)** i **wieżyczka (Sentry)** |
+| **SM** | `AxmBro` | Kanban, Daily, dokumentacja z zajęć, Moodle; **zapis zdarzeń, panel, spięcie** |
+| **DEV** | *(do dodania)* | **alert na Telegram (UC-02)**, nagrania testowe |
 
-- **Rdzeń (krytyczna ścieżka demo)** zostaje u lidera: hardware, firmware, wizja,
-  logika, integracja i n8n. Od tego zależy, czy wieżyczka w ogóle zadziała.
-- **Reszta zespołu** dostaje moduły **odseparowane interfejsem** — jeśli zrobią je
-  źle, demo dalej działa (po prostu bez historii / panelu / powiadomień).
-- Interfejs definiuje lider; zespół „wypełnia środek" wg podpisów funkcji i schematów.
-- Git: gałęzie `<type>/<short-description>` (np. `feat/web-panel`) + **PR z 1 approval (lidera)** — nic nie wchodzi na
-  `main` bez przeglądu.
+## Kto robi który UC
 
----
+| UC | Kto | Co ma działać |
+|---|---|---|
+| UC-01 Wykrywanie intruza | PO | kamera lub MP4 w pętli → YOLO → punkt stóp w strefie → potwierdzenie na 3 klatkach (wejście i wyjście) |
+| UC-01 krok 6: zapis zdarzenia | SM | zdjęcie JPG z ramkami + wiersz w SQLite, przed wysyłką alertu |
+| UC-02 Wysłanie alertu | DEV | zdjęcie z podpisem (godzina, strefa) na czat Telegram; brak internetu nie wywala programu |
+| UC-02 krok 1: warunki wysyłki | SM | max 1 alert / 60 s na strefę, godziny czuwania |
+| UC-07 Logowanie | SM | panel tylko po zalogowaniu, hasło w `.env` |
+| UC-03 Zarządzanie zdarzeniami | SM | lista od najnowszego, duże zdjęcie, działa na telefonie |
+| UC-04 Fałszywy alarm | SM | przycisk + licznik |
+| Sentry | PO | wieżyczka, ESP32, IFF; u reszty działa w trybie SIM |
 
-## 🔧 LIDER (rdzeń + glue) — fizyczna budowa
+## Co kto komu przekazuje
 
-Wszystko na krytycznej ścieżce demo.
-
-### Hardware / mechanika / zasilanie
-- Elektronika wg BOM i „złotych zasad": XL4015 ustawiona miernikiem na **≤6 V przed**
-  podłączeniem serw, MOSFET D4184, dioda flyback 1N4007 na pompce, laser przez
-  tranzystor 2N2222, kondensator 1000 µF.
-- Prąd pompki/serw **nie** przez płytkę stykową — bezpośrednie przewody.
-- Mechanika Pan-Tilt (łożysko), lufa mosiężna wylot **Ø1,5 mm** (nie szerszy — CFD),
-  pompka + wężyk, zasilanie 12 V.
-
-### Firmware ESP32 (`firmware/smartguard_esp32`)
-- Pełny protokół UART (115200):
-  - PC→ESP32: `AIM:<pan>,<tilt>` · `FIRE:<ms>` · `LASER:0/1` · `BUZZ` · `SCAN:ON/OFF`
-  - ESP32→PC: `IFF:<0/1>,<rssi>`
-- Serwa przez `ESP32Servo`.
-- **Skan BLE / IFF robi ESP32** (PC nie ma Bluetootha) → wysyła `IFF:<0/1>,<rssi>`.
-
-### Software rdzenia
-- `rules.py` — potwierdzenie detekcji na **3 klatkach** + fuzja IFF (czyta `IFF:...`
-  z portu szeregowego).
-- `turret_controller.py` — **visual servoing**: piksel → kąty pan/tilt, wysyłka
-  `AIM`/`FIRE` po UART.
-- `main.py` — maszyna stanów (IDLE→…→COOLDOWN) + orkiestracja całości.
-
-### Spięcie / przepływ
-- **n8n** (lokalnie w Dockerze) — cała logika powiadomień.
-- **Webhook n8n → Telegram** (to część spięcia, robi lider).
-- Decyzja co kogo woła i kiedy.
-
-### BHP
-- Impuls pompki max 200 ms, celowanie w korpus (nigdy w głowę), zakresy kątów serw.
-
----
-
-## 💻 OSOBA B () — dane + panel
-
-Produkuje dane i je wyświetla. Lider je konsumuje w `main.py` i rozsyła przez n8n.
-Jeśli zawali — demo dalej strzela, tylko bez historii/panelu.
-
-- **`events.py`** — zapis zdarzeń do **SQLite** + zapis klatek **JPG** w `events/`.
-- **Panel WWW (FastAPI)** — lista zdarzeń + podgląd zdjęć + status systemu;
-  czyta wyłącznie bazę z `events.py`.
-
-**Kontrakt od lidera:** schemat tabeli SQLite + podpis funkcji, np.
-```python
-def zapisz_zdarzenie(typ: str, pewnosc: float, klatka) -> int:
-    """Zapisz zdarzenie do SQLite i klatkę jako JPG w events/.
-    Zwróć id wiersza. Schemat tabeli: id, ts, typ, pewnosc, sciezka_foto."""
-    ...  # <- to wypełnia osoba B
+```
+PO  ──(wejście do strefy: strefa, pewność, klatka, ramki)──▶  SM
+SM  ──(zdjęcie + podpis)──▶  DEV  ──(wysłane: tak / nie)──▶  SM
+SM  ──(baza zdarzeń)──▶  panel
 ```
 
----
+Zmiana tego, co się przekazuje = PR oglądany przez obie strony.
 
-## 📋 OSOBA C () — powiadomienia + proces
+## Kolejność
 
-Zadania o niskim ryzyku technicznym, wysokiej wartości na ocenę (proces IO).
+1. UC-01 + zapis zdarzenia (PO, SM) — bez tego reszta nie ma danych.
+2. UC-02 (DEV, SM) — pierwszy pełny alert na telefonie.
+3. UC-07 + UC-03 (SM) — panel z logowaniem.
+4. UC-04 (SM).
 
-- **Bot Telegram** — założenie bota, token do `.env`, test „czy wiadomość dochodzi".
-  (Webhook n8n→Telegram robi lider; osoba C dostarcza działającego bota + `chat_id`.)
-- **Kanban / Scrum** — aktualizacja tablicy, sprinty, retrospektywy.
-- **Dokumentacja** — README, instrukcja użytkownika, diagramy architektury, zapisy sesji.
-- **Testy manualne + raporty** — uruchamianie `detekcja_test.py`, `kalibracja_strefy.py`,
-  spisywanie wyników.
-- **Prezentacja na obronę** — slajdy + nagranie demo.
-
-**Kontrakt od lidera:** osoba C przekazuje `token` bota i `chat_id`; co i kiedy wysłać
-ustala lider w n8n.
-
----
-
-## Dwa „kontrakty", które spinają wszystko
-
-1. **Schemat SQLite + podpis `zapisz_zdarzenie(...)`** — granica lider ↔ osoba B
-   (panel i `main.py` czytają/piszą to samo).
-2. **`token` + `chat_id` bota Telegram** — granica lider ↔ osoba C
-   (resztę przepływu ogarnia n8n po stronie lidera).
-
-Dodatkowo `config.json` = jedno źródło konfiguracji (strefa, kąty, progi) — zero
-sztywnych wartości w kodzie.
-
----
-
-## Mapowanie na plan 10-dniowy
-
-| Faza | LIDER (rdzeń+glue) | OSOBA B (dane/panel) | OSOBA C (proces) |
-|---|---|---|---|
-| **Dni 1–3** *(bez sprzętu)* | kompletowanie BOM, montaż uchwytu, firmware „na sucho" (test serw), `rules.py` + servoing na mocku | szkielet `events.py` (SQLite + JPG) | założenie bota Telegram, start Kanban, szkielet dokumentacji |
-| **Dni 4–6** *(sprzęt)* | elektronika + firmware + woda, integracja `turret_controller` z ESP32 (**pierwszy strzał**), n8n | panel WWW (lista zdarzeń + zdjęcia) | testy manualne + raporty, aktualizacja Kanbana |
-| **Dni 7–10** | tryby pracy + BHP w logice, spięcie n8n→Telegram, testy końcowe | finalizacja panelu + statusu | dokumentacja końcowa + prezentacja + demo |
-
----
-
-*Dokument roboczy — ustalenia zespołu SmartGuard.*
+Sentry PO robi równolegle, gdy przyjdzie sprzęt. DEV od początku nagrywa nagrania testowe (karta § 9.1)
+i wpisuje wyniki w karty na Kanbanie.

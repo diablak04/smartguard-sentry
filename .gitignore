@@ -24,3 +24,8 @@ Thumbs.db
 
 # Ustawienia tylko tego komputera (kamera, port, strefa)
 config.local.json
+
+# Zdjecia zdarzen, nagrania testowe - widac na nich ludzi (RODO), nigdy do repo
+events/
+videos/
+*.mp4
