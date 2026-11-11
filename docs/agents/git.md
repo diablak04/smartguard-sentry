@@ -11,7 +11,10 @@
 
 ## Zasady
 - Do `main` tylko przez PR. Ochrona `main` na GitHubie w 11.2026 jest jeszcze wyłączona, do włączenia przez właściciela repo.
-- Asystent AI robi commit, push, PR i issue tylko na wyraźną prośbę użytkownika w bieżącej wiadomości.
+- Asystent AI robi commit, push, PR i issue tylko na wyraźne polecenie użytkownika w bieżącej wiadomości
+  („zakomituj”, „wypchnij”). Pytanie („zakomitować?”), „ogarnij”, zatwierdzony plan ani zgoda z wcześniejszej
+  wiadomości nie są poleceniem: asystent kończy pracę na niezacommitowanych zmianach, mówi, co jest gotowe, i czeka.
+  Kiedy powstaje commit, decyduje człowiek.
 - Issue i PR są publiczne: obowiązują te same zasady danych osobowych co w kodzie (`AGENTS.md` § Repo jest publiczne).
 
 ## Pull request
