@@ -29,3 +29,6 @@ config.local.json
 events/
 videos/
 *.mp4
+
+# Prywatne notatki kazdego dla Claude Code
+CLAUDE.local.md
