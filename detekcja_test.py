@@ -6,17 +6,16 @@ Szara ramka    = osoba poza strefa (ignorowana).
 Uruchom:  .venv\\Scripts\\python.exe detekcja_test.py
 Wyjscie:  klawisz 'q' w oknie.
 """
-import json
 import time
-from pathlib import Path
 import cv2
 from capture import Camera
+from config import wczytaj_config
 from detector import Detector
 import zona
 
 
 def main():
-    config = json.loads(Path("config.json").read_text(encoding="utf-8"))
+    config = wczytaj_config()
     strefa = config["strefa"]
 
     cam = Camera(config.get("kamera_glowna", 0)).start()

@@ -7,14 +7,11 @@ Maszyna sterowana percepcja: krok(cel_w_strefie, iff_swoj) wykonuje JEDNO przejs
 Realne wejscia (kamera -> YOLO -> strefa -> IFF BLE) podepniemy w integracji (Faza 6);
 tu run() odgrywa scenariusz, zeby pokazac dzialanie bez sprzetu.
 """
-import json
 import logging
 from enum import Enum, auto
-from pathlib import Path
 
+from config import wczytaj_config
 from rules import Potwierdzanie, klasyfikuj_iff
-
-CONFIG_PATH = Path(__file__).parent / "config.json"
 
 
 class Stan(Enum):
@@ -38,11 +35,6 @@ PRZEJSCIA = {
     Stan.ENGAGE:     [Stan.COOLDOWN],
     Stan.COOLDOWN:   [Stan.IDLE, Stan.PATROL],
 }
-
-
-def wczytaj_config(path: Path = CONFIG_PATH) -> dict:
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
 
 
 def konfiguruj_logging() -> None:
