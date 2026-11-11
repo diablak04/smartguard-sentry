@@ -6,7 +6,9 @@ scenariusz, zeby pokazac dzialanie bez kamery i sprzetu.
 """
 import logging
 from enum import Enum, auto
+from logging.handlers import RotatingFileHandler
 
+from smartguard.config import LOGS_DIR
 from smartguard.rules import FrameConfirmation, classify_iff
 
 
@@ -34,12 +36,15 @@ TRANSITIONS = {
 
 
 def setup_logging() -> None:
+    """Log na konsole i do logs/smartguard.log (max 3 pliki po 1 MB, potem najstarszy znika)."""
+    LOGS_DIR.mkdir(exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%H:%M:%S",
         handlers=[logging.StreamHandler(),
-                  logging.FileHandler("smartguard.log", encoding="utf-8")],
+                  RotatingFileHandler(LOGS_DIR / "smartguard.log", maxBytes=1_000_000,
+                                      backupCount=3, encoding="utf-8")],
     )
 
 

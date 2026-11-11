@@ -6,10 +6,14 @@ Mierzymy czas inferencji (wymog: < 200 ms/klatke, cel 3-5 FPS na CPU).
 import time
 from ultralytics import YOLO
 
+from smartguard.config import project_path
+
 
 class Detector:
-    def __init__(self, model_path: str = "yolo11n.pt", threshold: float = 0.5, imgsz: int = 640):
-        self.model = YOLO(model_path)
+    def __init__(self, model_path: str = "models/yolo11n.pt", threshold: float = 0.5, imgsz: int = 640):
+        path = project_path(model_path)
+        path.parent.mkdir(parents=True, exist_ok=True)  # brak modelu -> ultralytics pobierze go tutaj
+        self.model = YOLO(str(path))
         self.threshold = threshold  # prog pewnosci
         self.imgsz = imgsz          # rozdzielczosc wejscia (zmniejsz dla wiekszego FPS)
         self.last_ms = 0.0          # czas ostatniej inferencji [ms]

@@ -4,7 +4,7 @@
     "fpv": 1
   },
   "yolo": {
-    "model": "yolo11n.pt",
+    "model": "models/yolo11n.pt",
     "confidence": 0.5
   },
   "zone": [

@@ -13,6 +13,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SHARED_CONFIG = ROOT / "config.json"
 LOCAL_CONFIG = ROOT / "config.local.json"
+LOGS_DIR = ROOT / "logs"
+
+
+def project_path(path: str) -> Path:
+    """Sciezka z configu (np. "models/yolo11n.pt") liczona od folderu projektu, nie od biezacego katalogu."""
+    p = Path(path)
+    return p if p.is_absolute() else ROOT / p
 
 
 def _read(path: Path) -> dict:
