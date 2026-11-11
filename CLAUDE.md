@@ -13,19 +13,23 @@ Termin oddania: 24.01.2027.
 
 ## Gdzie co jest
 - **To repo:** kod aplikacji (Python) + firmware ESP32. Każdy klonuje gdzie chce — **nie wpisuj nigdzie ścieżek bezwzględnych** (np. `C:\...`); ścieżki w kodzie liczone od folderu projektu.
-- **GitHub:** https://github.com/diablak04/smartguard-sentry (publiczne; ochrona main TYMCZASOWO ZDJĘTA na czas solo-pracy — włączyć „PR + 1 approval" gdy zespół dołączy).
+- **GitHub:** https://github.com/diablak04/smartguard-sentry (publiczne; zasady Git — „Praca zespołowa” niżej).
 - **Kanban:** https://github.com/users/diablak04/projects/1 (kolumny: Backlog / In Progress / Testing / Done; karty = Fazy+Sprinty z karty projektu).
 - **Dokumenty** (Downloads): `SmartGuard_Karta_Projektu_Sentry_Edition_v2.pdf` (formalna karta),
   `SmartGuard_Instrukcja_wykonawcza.pdf` (plan dzień-po-dniu + kod startowy).
 - **Symulacja CFD lufy:** poza repo, lokalnie u lidera (OpenFOAM/SimScale).
 
-## Praca w 3 osoby (zasady kodu)
-- `config.json` (w repo) = wspólne ustawienia. `config.local.json` (poza gitem) = ustawienia
-  TEGO komputera: kamera, port, strefa z kalibracji. Czytać zawsze przez `config.wczytaj_config()`,
-  zapisywać lokalne przez `config.zapisz_lokalnie()` — nigdy nie nadpisywać `config.json` z kodu.
-- Port ESP32 = `"auto"` (wykrywanie po USB w `turret_controller.py`) — bez wpisywania COM.
-- Moduły odseparowane interfejsem wg `docs/podzial_pracy.md`; nowe zależności dopisać do
-  `requirements.txt` z komentarzem, do czego są.
+## Praca zespołowa
+- **Git teraz (solo):** ochrona `main` wyłączona (brak reguły na GitHubie, stan 11.2026) — commit na `main`
+  albo na gałęzi `<type>/<short-description>`.
+- **Git gdy dołączy zespół:** włączyć ochronę `main` (PR + 1 approval lidera); każdy na gałęzi
+  `<type>/<short-description>` (Conventional Branch: `feat`/`fix`/`docs`/`chore`, kebab-case, np. `feat/web-panel`).
+  Commity: Conventional Commits `<type>(<scope>): <opis>` — opis po polsku.
+- **Kto co robi + interfejsy między modułami:** `docs/podzial_pracy.md`.
+- **Konfiguracja:** `config.json` wspólny, `config.local.json` per komputer (poza gitem). Czytać przez
+  `config.wczytaj_config()`, zapisywać przez `config.zapisz_lokalnie()` — nigdy nie nadpisywać `config.json` z kodu.
+  Port ESP32 = `"auto"` (wykrywanie po USB w `turret_controller.py`).
+- **Nowa biblioteka** → `requirements.txt` z komentarzem, do czego jest.
 
 ## Stos technologiczny
 - Python 3.11+: `ultralytics` (YOLO11n), `opencv-python`, `pyserial` (ESP32↔PC), `fastapi`+`uvicorn`, `requests`. (`bleak` tylko opcjonalny fallback — **IFF/BLE skanuje ESP32**, bo PC nie ma Bluetooth; patrz protokół.)
@@ -63,6 +67,8 @@ Dzień 1 detekcja YOLO · 2 strefa+3 klatki · 3 IFF BLE · 4 elektronika+firmwa
 5 wieżyczka+woda · 6 Visual Servoing (integracja, pierwszy strzał) · 7 SQLite+zdjęcia+n8n+Telegram ·
 8 panel WWW · 9 tryby+BHP · 10 testy+oddanie. Dni 1–3 bez sprzętu (robić od razu).
 
-## Stan na teraz
-Zrobione: repo + struktura + firmware szkic + Kanban. Następne: Sprint 1 — detekcja YOLO
-i skaner BLE (`detector.py`, `rules.py`), n8n lokalnie, bot Telegram.
+## Stan na teraz (11.2026)
+Zrobione (software, bez wieżyczki): detekcja YOLO, strefa + 3 klatki, maszyna stanów, IFF/BLE na ESP32,
+integracja na żywo w trybie SIM, config per komputer + auto-port ESP32, instrukcja instalacji.
+Czeka na sprzęt: serwa, zasilanie, pompka, pierwszy strzał. Następne bez sprzętu: n8n + Telegram,
+SQLite + zdjęcia (`events.py`), panel WWW. Szczegóły: README „Stan projektu”.
