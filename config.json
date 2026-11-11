@@ -1,9 +1,13 @@
 {
-  "kamera_glowna": 0,
-  "kamera_fpv": 1,
-  "yolo_model": "yolo11n.pt",
-  "yolo_prog_pewnosci": 0.5,
-  "strefa": [
+  "camera": {
+    "main": 0,
+    "fpv": 1
+  },
+  "yolo": {
+    "model": "models/yolo11n.pt",
+    "confidence": 0.5
+  },
+  "zone": [
     [
       0.044,
       0.442
@@ -21,23 +25,29 @@
       0.458
     ]
   ],
-  "potwierdzenie_klatek": 3,
-  "serwo": {
+  "confirm_frames": 3,
+  "servo": {
     "pan_min": 30,
     "pan_max": 150,
     "tilt_min": 20,
     "tilt_max": 60
   },
-  "esp32_port": "auto",
-  "esp32_baud": 115200,
+  "aim": {
+    "step_every_s": 0.25,
+    "smoothing": 0.4
+  },
+  "esp32": {
+    "port": "auto",
+    "baud": 115200
+  },
   "iff": {
-    "brelok_mac": "AA:BB:CC:11:22:33",
-    "rssi_prog": -75
+    "beacon_mac": "AA:BB:CC:11:22:33",
+    "rssi_threshold_dbm": -75
   },
   "fire_ms": 200,
   "cooldown_s": 60,
-  "godziny_czuwania": {
-    "od": "22:00",
-    "do": "06:00"
+  "guard_hours": {
+    "from": "22:00",
+    "to": "06:00"
   }
 }

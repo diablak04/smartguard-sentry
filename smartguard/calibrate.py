@@ -10,20 +10,20 @@ Zapisuje wspolrzedne znormalizowane (0-1), wiec strefa zadziala przy kazdej rozd
 """
 import time
 import cv2
-from capture import Camera
-from config import wczytaj_config, zapisz_lokalnie
+from smartguard.capture import Camera
+from smartguard.config import load_config, save_local
 
-punkty = []  # punkty w pikselach
+points = []  # punkty w pikselach
 
 
 def on_mouse(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
-        punkty.append((x, y))
+        points.append((x, y))
 
 
-def main():
-    config = wczytaj_config()
-    cam = Camera(config.get("kamera_glowna", 0)).start()
+def run() -> None:
+    config = load_config()
+    cam = Camera(config["camera"]["main"]).start()
     time.sleep(1.0)
     cv2.namedWindow("Kalibracja strefy")
     cv2.setMouseCallback("Kalibracja strefy", on_mouse)
@@ -35,14 +35,14 @@ def main():
             continue
         h, w = frame.shape[:2]
 
-        for i, p in enumerate(punkty):
+        for i, p in enumerate(points):
             cv2.circle(frame, p, 5, (0, 255, 0), -1)
             if i > 0:
-                cv2.line(frame, punkty[i - 1], p, (0, 255, 0), 2)
-        if len(punkty) > 2:
-            cv2.line(frame, punkty[-1], punkty[0], (0, 255, 0), 1)  # domkniecie
+                cv2.line(frame, points[i - 1], p, (0, 255, 0), 2)
+        if len(points) > 2:
+            cv2.line(frame, points[-1], points[0], (0, 255, 0), 1)  # domkniecie
 
-        cv2.putText(frame, f"punkty: {len(punkty)} (min 3) | z=zapisz r=reset q=wyjscie",
+        cv2.putText(frame, f"punkty: {len(points)} (min 3) | z=zapisz r=reset q=wyjscie",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
         cv2.imshow("Kalibracja strefy", frame)
 
@@ -50,15 +50,12 @@ def main():
         if k == ord("q"):
             break
         elif k == ord("r"):
-            punkty.clear()
-        elif k == ord("z") and len(punkty) >= 3:
-            strefa = [[round(x / w, 3), round(y / h, 3)] for (x, y) in punkty]
-            zapisz_lokalnie({"strefa": strefa})
-            print("Zapisano strefe do config.local.json:", strefa)
+            points.clear()
+        elif k == ord("z") and len(points) >= 3:
+            zone_norm = [[round(x / w, 3), round(y / h, 3)] for (x, y) in points]
+            save_local({"zone": zone_norm})
+            print("Zapisano strefe do config.local.json:", zone_norm)
 
     cam.stop()
     cv2.destroyAllWindows()
 
-
-if __name__ == "__main__":
-    main()

@@ -39,8 +39,8 @@ Projekt jest na zaliczenie i do obrony, więc liczy się zrozumienie, nie tylko 
 
 ## Gotowe = dowód
 Samo „zrobione” nie wystarcza; gotowe jest to, co zostało sprawdzone.
-1. Przed kodem ustal, czym sprawdzisz wynik: uruchomienie (dziś `integracja.py` w trybie SIM
-   i `main.py` jako demo bez kamery), nagranie demo, test albo liczba.
+1. Przed kodem ustal, czym sprawdzisz wynik: uruchomienie (`python main.py` w trybie SIM, `python main.py demo`
+   bez kamery), nagranie demo, test albo liczba.
 2. Spisz skrajne przypadki w skali zadania (np. pusta strefa, brak kamery, brak sieci przy alercie).
 3. Sprawdź na prawdziwych danych i pokaż komendę z wynikiem, nie samo „działa”.
 4. Rozwiązanie ogólne, nie pod test: bez wartości wpisanych pod konkretny przypadek i bez luzowania testów.

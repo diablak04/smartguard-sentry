@@ -39,10 +39,10 @@ Diagram = źródło `.drawio` + eksport `.png` obok, ta sama nazwa (np. `diagram
 | Diagram wymagań | `diagrams/requirements` | wymaganiami z karty |
 | Diagram przypadków użycia + scenariusze | `diagrams/use-case` (scenariusze: PDF poza repo) | zatwierdzone |
 | Diagram czynności | `diagrams/activity` | przepływem UC-01 → UC-02 (detekcja → zapis → alert) |
-| Model danych (ERD) + opis tabel i statusów | `diagrams/erd`, `data-model.md` | `events.py` (SQLite) |
-| Diagram klas | `diagrams/class` | modułami Pythona po refaktorze ([`docs/project/decisions.md` § D-02](project/decisions.md#d-02) (konwencja kodu)) |
+| Model danych (ERD) + opis tabel i statusów | `diagrams/erd`, `data-model.md` | `smartguard/events.py` (SQLite) |
+| Diagram klas | `diagrams/class` | modułami pakietu `smartguard/` |
 | Diagram sekwencji | `diagrams/sequence` | spięciem modułów w `main.py` |
-| Diagram stanów | `diagrams/state` | maszyną stanów (`State` / `Stan` w `main.py`) |
+| Diagram stanów | `diagrams/state` | maszyną stanów (`State` w `smartguard/state_machine.py`) |
 | Diagram wdrożenia | `diagrams/deployment` | uruchomieniem: PC, kamera, ESP32, Telegram, n8n w Dockerze |
 | Architektura: moduły, przepływ, protokół PC ↔ ESP32 | `architecture.md` | spięciem modułów |
 | Testy: przypadki testowe do wymagań, nagranie demo, wyniki | `testing.md` | testami (DEV) |

@@ -1,7 +1,7 @@
 # SmartGuard — orkiestracja uslug.
-# n8n stawiamy w kontenerze (automatyzacja + Telegram, Faza 7).
-# Aplikacja wizyjna (main.py) dziala na HOSCIE, bo potrzebuje kamery USB,
-# portu COM (ESP32) i Bluetootha — Docker na Windows nie daje do nich dostepu.
+# n8n w kontenerze jest opcjonalne (automatyzacje); alert na Telegram idzie prosto z Pythona.
+# Aplikacja (main.py) dziala na HOSCIE, bo potrzebuje kamery USB i portu COM (ESP32),
+# a Docker na Windows nie daje do nich dostepu. Skan BLE robi ESP32, nie PC.
 
 services:
   n8n:

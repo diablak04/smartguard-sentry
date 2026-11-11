@@ -3,9 +3,6 @@
 > **Kiedy czytać:** przed każdą zmianą w `*.py`. Język nazw, struktura folderów, ścieżki i pliki generowane, konfiguracja, logi.
 > Obowiązuje ludzi i asystentów AI.
 
-> **Przejście w toku.** Kod jest jeszcze w starym, płaskim układzie z polskimi nazwami. Przeniesie go jeden PR
-> refaktoru. Do tego czasu nie zmieniaj nazw istniejących rzeczy na własną rękę; nowy kod pisz już według tych zasad.
-
 ## Język
 
 | Co | Język | Przykład |
@@ -25,11 +22,8 @@ Gdy liczba ma jednostkę, jednostka jest w nazwie: `fire_ms`, `cooldown_s`, `rss
 
 ```
 smartguard-sentry/
-├─ main.py                 system na żywo: kamera → detekcja → strefa → zdarzenie → alert (+ wieżyczka)
-├─ demo.py                 scenariusz bez kamery; „Koniec scenariusza.” = instalacja OK
-├─ calibrate_zone.py       wyznaczanie strefy chronionej
-├─ detection_preview.py    podgląd detekcji i strefy
-├─ smartguard/             kod aplikacji (pakiet); tych plików nie uruchamia się bezpośrednio
+├─ main.py                 jedyne wejście: python main.py [live | demo | calibrate | preview]
+├─ smartguard/             kod aplikacji (pakiet), w tym tryby live, demo, calibrate, preview
 ├─ tests/                  testy pytest
 ├─ firmware/               szkice ESP32 (nazwa folderu = nazwa pliku .ino)
 ├─ docs/                   dokumentacja (mapa: docs/README.md)
@@ -38,11 +32,12 @@ smartguard-sentry/
 └─ config.json, config.local.example.json, requirements.txt, .env.example, docker-compose.yml
 ```
 
-- W korzeniu są tylko skrypty do uruchomienia (▶ *Run Python File*) i konfiguracja. Skrypt w korzeniu tylko
-  wywołuje logikę, a sama logika jest w `smartguard/`. Nowych dokumentów nie kładziemy w korzeniu, tylko w `docs/`.
+- W korzeniu jest jeden skrypt, `main.py`, który tylko wybiera tryb; cała logika jest w `smartguard/`.
+  Nowy tryb = moduł w `smartguard/` z funkcją `run()` + wpis w `MODES` w `main.py` (`docs/project/decisions.md` § D-04 (jedno wejście main.py)).
+  Plików z `smartguard/` nie uruchamia się bezpośrednio. Nowych dokumentów nie kładziemy w korzeniu, tylko w `docs/`.
 - Importy absolutne od nazwy pakietu: `from smartguard.config import load_config`.
 - Nie używamy `src/`, `pyproject.toml` ani `pip install -e .`: uruchamiamy z folderu projektu, pakietu nie publikujemy.
-  Folder `scripts/` odpada, bo ▶ *Run Python File* uruchomiony w nim nie widzi pakietu (`ModuleNotFoundError`).
+  Skrypt uruchomiony z wnętrza pakietu albo z `scripts/` nie widzi pakietu (`ModuleNotFoundError`), stąd jedno wejście w korzeniu.
 - Testy uruchamiasz z folderu projektu przez `python -m pytest`. Samo `pytest` nie znajdzie pakietu.
 
 ## Pliki generowane i ścieżki
@@ -51,7 +46,7 @@ smartguard-sentry/
 |---|---|---|
 | `models/` | `yolo11n.pt` | ultralytics, pobiera go przy pierwszym uruchomieniu |
 | `logs/` | `smartguard.log` (z rotacją) | logging |
-| `data/` | `smartguard.db`, `events/` (zdjęcia zdarzeń), `videos/` (nagrania testowe) | `events.py`, ty |
+| `data/` | `smartguard.db`, `events/` (zdjęcia zdarzeń), `videos/` (nagrania testowe) | `smartguard/events.py` (do napisania), ty |
 
 - Wszystkie trzy foldery są w `.gitignore`. W `data/` są zdjęcia ludzi (RODO), więc nigdy nie trafia do repo.
 - Ścieżki są liczone od folderu projektu (stała `ROOT` w `smartguard/config.py`), nigdy od bieżącego katalogu
@@ -60,8 +55,7 @@ smartguard-sentry/
 
 ## Konfiguracja
 
-- Wartości, które się stroi (progi, czasy, kąty, porty), trzymamy w `config.json`, nie w kodzie. Część stałych
-  w `integracja.py` i `main.py` przejdzie do configu w refaktorze. Klucze są po angielsku
+- Wartości, które się stroi (progi, czasy, kąty, porty), trzymamy w `config.json`, nie w kodzie. Klucze są po angielsku
   i pogrupowane, np. `"camera": {"main": 0, "fpv": 1}`.
 - `config.json` jest wspólny. `config.local.json` jest per komputer, poza gitem, i nadpisuje wspólny.
 - Odczyt przez `load_config()`. Ustawienia konkretnego komputera zapisuje `save_local()` do `config.local.json`.

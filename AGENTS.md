@@ -18,12 +18,12 @@ strzelająca wodą + rozpoznawanie swój/wróg (IFF) po breloku BLE (ESP32). Pyt
 | Obszar | Kod | Zasady | Dokumenty |
 |---|---|---|---|
 | Każda zmiana w Pythonie | `*.py`, `config*.json`, `requirements.txt` | `docs/agents/code.md` | `docs/project/decisions.md` § D-02 (konwencja kodu) |
-| Detekcja, strefa, potwierdzanie (UC-01) | `capture.py`, `detector.py`, `zona.py`, `rules.py`, `kalibracja_strefy.py`, `detekcja_test.py` | `docs/agents/code.md` | `docs/project/scope.md` § UC-01 Wykrywanie |
-| Zapis zdarzeń: SQLite + zdjęcia | `events.py` | `docs/agents/code.md` § Pliki generowane | `docs/project/scope.md` § UC-01 → zapis; `docs/project/team.md` § Co kto komu przekazuje |
-| Alert na Telegram (UC-02) | `notifier.py` (do napisania), `.env` | `docs/agents/code.md` § Konfiguracja | `docs/project/scope.md` § UC-02 |
-| Panel WWW, logowanie, fałszywy alarm (UC-03, UC-04, UC-07) | `api.py` (do napisania) | `docs/agents/code.md` | `docs/project/scope.md` § UC-03, § UC-04 |
-| Maszyna stanów, spięcie modułów | `main.py`, `integracja.py` | `docs/agents/code.md` | `README.md` § Jak to działa |
-| Wieżyczka, ESP32, IFF/BLE, okablowanie | `firmware/**`, `turret_controller.py`, `ble_scanner.py` | `docs/agents/hardware.md` (+ `docs/agents/code.md` dla `*.py`) | `docs/project/decisions.md` § D-01 (skan BLE na ESP32); `docs/project/scope.md` § Sentry; `README.md` § ESP32 |
+| Detekcja, strefa, potwierdzanie (UC-01) | `smartguard/capture.py`, `detector.py`, `zone.py`, `rules.py`, `calibrate.py`, `preview.py` | `docs/agents/code.md` | `docs/project/scope.md` § UC-01 Wykrywanie |
+| Zapis zdarzeń: SQLite + zdjęcia | `smartguard/events.py` | `docs/agents/code.md` § Pliki generowane | `docs/project/scope.md` § UC-01 → zapis; `docs/project/team.md` § Co kto komu przekazuje |
+| Alert na Telegram (UC-02) | `smartguard/notifier.py` (do napisania), `.env` | `docs/agents/code.md` § Konfiguracja | `docs/project/scope.md` § UC-02 |
+| Panel WWW, logowanie, fałszywy alarm (UC-03, UC-04, UC-07) | `smartguard/api.py` (do napisania) | `docs/agents/code.md` | `docs/project/scope.md` § UC-03, § UC-04 |
+| Maszyna stanów, spięcie modułów | `main.py` (wybór trybu), `smartguard/live.py`, `demo.py`, `state_machine.py` | `docs/agents/code.md` | `README.md` § Jak to działa |
+| Wieżyczka, ESP32, IFF/BLE, okablowanie | `firmware/**`, `smartguard/turret.py`, `smartguard/ble_scanner.py` | `docs/agents/hardware.md` (+ `docs/agents/code.md` dla `*.py`) | `docs/project/decisions.md` § D-01 (skan BLE na ESP32); `docs/project/scope.md` § Sentry; `README.md` § ESP32 |
 | Dokumentacja na oddanie: architektura, ERD, UML, testy | `docs/design/**` | `docs/agents/docs.md` | `docs/README.md` § Dokumentacja na oddanie; `docs/project/scope.md` |
 | Instrukcje dla AI, dokumenty, notatki, zasady | `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/**` | `docs/agents/docs.md` | `docs/project/decisions.md` § D-03 (instrukcje dla AI) |
 | Commit, push, PR (jeden PR = jedna zmiana), issue | `.github/` | `docs/agents/git.md` | `docs/project/team.md` § Jak pracujemy |
@@ -31,8 +31,7 @@ strzelająca wodą + rozpoznawanie swój/wróg (IFF) po breloku BLE (ESP32). Pyt
 | „Czemu tak, a nie inaczej?”, wybór technologii | — | — | `docs/project/decisions.md` (sprawdź, czy już nie rozstrzygnięte) |
 | Co dalej, stan prac, kto co robi | — | — | Kanban; `docs/project/scope.md`; `docs/project/team.md` |
 
-`docs/project/scope.md`, `docs/project/decisions.md`, `docs/project/team.md` leżą w `docs/project/`; mapa całego `docs/`: `docs/README.md`. Nazwy plików
-kodu w tabeli są sprzed refaktoru (`docs/project/decisions.md` § D-02); po nim zmieniamy je tutaj.
+`docs/project/scope.md`, `docs/project/decisions.md`, `docs/project/team.md` leżą w `docs/project/`; mapa całego `docs/`: `docs/README.md`.
 
 ## Repo jest publiczne
 
@@ -66,12 +65,11 @@ w Claude Code ten plik (`docs/project/decisions.md` § D-03).
 ## Zawsze
 
 - Najpierw rdzeń oceniany na zajęciach (UC-01–04 + UC-07), potem reszta; Sentry nie może go psuć. Bez overengineeringu.
-- Nazwy w kodzie po angielsku, komentarze i teksty po polsku. Kod jest w trakcie przejścia na tę konwencję, więc
-  istniejących nazw nie zmieniaj na własną rękę (`docs/project/decisions.md` § D-02).
+- Nazwy w kodzie po angielsku, komentarze i teksty po polsku (`docs/project/decisions.md` § D-02 (konwencja kodu)).
 - Nowe progi, czasy, kąty i porty dodajesz do `config.json`, nie do kodu; kod nigdy nie nadpisuje `config.json`
   (`docs/agents/code.md` § Konfiguracja).
-- Nowy kod liczy ścieżki od folderu projektu i zapisuje pliki generowane w `models/`, `logs/`, `data/`; obecny kod
-  przejdzie na to w refaktorze (`docs/project/decisions.md` § D-02 (konwencja kodu)).
+- Ścieżki od folderu projektu (`project_path()` w `smartguard/config.py`), nie od bieżącego katalogu. Pliki
+  generowane tylko w `models/`, `logs/`, `data/`.
 - Wieżyczka: impuls pompki max 200 ms, cel w korpus, nigdy w głowę (pozostałe złote zasady: `docs/agents/hardware.md`).
 - Wiedzę zapisujesz według `docs/agents/docs.md` § Gdzie co zapisać: jedna rzecz = jedno miejsce, nowe dokumenty w `docs/`.
 - Commit, push, PR i issue tylko na prośbę użytkownika (`docs/agents/git.md` § Zasady); instalacje i operacje
