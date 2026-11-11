@@ -1,107 +1,107 @@
 # SmartGuard: Sentry Edition
 
-Inteligentny system aktywnej ochrony perymetrycznej: detekcja ludzi (YOLO),
-autonomiczna wieżyczka Pan-Tilt, identyfikacja IFF (BLE) i powiadomienia (n8n + Telegram).
+System ochrony posesji: kamera wykrywa ludzi (YOLO), wieżyczka Pan-Tilt strzela wodą we wroga,
+swój jest rozpoznawany po breloku BLE (IFF), powiadomienia idą przez n8n + Telegram.
+Projekt z **Inżynierii Oprogramowania** (Informatyka, rok II).
 
-Projekt z przedmiotu **Inżynieria Oprogramowania** (Informatyka, rok II).
+**Zespół:** diablak04 (Product Owner) · DEV (Lead Hardware) · AxmBro (Scrum Master)
 
-## Zespół
-- diablak04 (Product Owner) — architektura, wizja (YOLO), n8n, logika
-- DEV (Lead Hardware) — elektronika, mechanika, firmware ESP32, zasilanie
-- AxmBro (Scrum Master) — persystencja, Telegram, panel WWW, testy, dokumentacja
+## Szybki start (Windows + VS Code)
 
-## Stan projektu (listopad 2026)
-Działa i przetestowane (software, bez fizycznej wieżyczki):
-- ✅ **Detekcja** YOLO `yolo11n` — ~40 ms/klatkę, ~25 FPS na CPU
-- ✅ **Strefa** chroniona (wielokąt) + **potwierdzanie na 3 klatkach**
-- ✅ **Maszyna stanów** IDLE→DETECTED→CONFIRMING→FRIENDLY/FOE→ENGAGE→COOLDOWN (+ MUTED)
-- ✅ **IFF/BLE** — skanowanie na **ESP32** (PC bez Bluetooth), decyzja swój/wróg po nazwie/MAC + RSSI; sprawdzone sprzętowo
-- ✅ **Integracja na żywo** (`integracja.py`) — cały łańcuch na kamerze, wieżyczka w trybie SIM (loguje AIM/FIRE)
+Sprzęt niepotrzebny — wieżyczka jest symulowana, wystarczy kamerka.
 
-Czeka na sprzęt (serwa, zasilanie, pompka): realne serwa, pierwszy strzał, układ wodny.
-W planie (bez sprzętu): n8n + Telegram, SQLite + zapis zdarzeń/zdjęć, panel WWW.
+**1. Zainstaluj (raz):**
+- [Python 3.13](https://www.python.org/downloads/windows/) — w instalatorze **zaznacz „Add python.exe to PATH”**,
+- [VS Code](https://code.visualstudio.com/) + rozszerzenie **Python** (Microsoft).
 
-## Architektura (przepływ)
-Kamera → `capture.py` → `detector.py` (YOLO) → `zona.py` (strefa) + `rules.py` (3 klatki + IFF)
-→ maszyna stanów (`main.py`) → `turret_controller.py` → ESP32 (serwa/pompka/laser).
-IFF: ESP32 skanuje BLE → `IFF:<0/1>,<rssi>` → PC. Oraz `events.py` (SQLite + JPG) → n8n → Telegram, panel WWW (FastAPI).
+**2. Pobierz projekt:** `git clone` albo **Code → Download ZIP** i rozpakuj. W VS Code: *File → Open Folder*.
 
-## Szybki start (Windows)
-
-**Raz na komputerze:** zainstaluj [Python 3.13](https://www.python.org/downloads/windows/)
-(w instalatorze **zaznacz „Add python.exe to PATH”**). Pobierz projekt: zielone **Code → Download ZIP**
-i rozpakuj (albo `git clone`). Sprzęt niepotrzebny — wieżyczka jest symulowana, wystarczy kamerka.
-
-**W folderze projektu** kliknij pasek adresu w Eksploratorze, wpisz `cmd`, Enter, i wklej:
+**3. Zainstaluj biblioteki** — *Terminal → New Terminal* i wklej:
 ```bat
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe main.py
 ```
-1. tworzy prywatne środowisko `.venv` w folderze projektu (reszta systemu nietknięta),
-2. instaluje biblioteki z `requirements.txt` — **~1,2 GB, ok. 5 min**,
-3. demo bez kamery: w konsoli przewijają się stany aż do `Koniec scenariusza.` = instalacja OK.
+Powstaje folder `.venv`: osobny Python z bibliotekami projektu (~1,2 GB, ok. 5 min).
+Nie miesza się z systemem; usunięcie `.venv` = odinstalowanie.
 
-**Programy z kamerą** (klawisze działają po kliknięciu w okno):
+**4. Wskaż VS Code `.venv`** (raz): `Ctrl+Shift+P` → *Python: Select Interpreter* → **`.venv`**.
 
-| Uruchom: `.venv\Scripts\python.exe …` | Co robi | Klawisze |
+**5. Uruchamiaj** przyciskiem **▶ Run Python File** (prawy górny róg):
+
+| Plik | Co robi | Klawisze (kliknij najpierw w okno kamery) |
 |---|---|---|
+| `main.py` | demo bez kamery; `Koniec scenariusza.` = instalacja OK | — |
 | `detekcja_test.py` | wykrywanie ludzi + strefa | `q` wyjście |
-| `kalibracja_strefy.py` | klikasz rogi strefy chronionej | LPM punkt, `z` zapisz, `r` reset, `q` |
-| `integracja.py` | cały system na żywo | `s` swój/wróg, `m` wycisz, `q` |
+| `kalibracja_strefy.py` | klikasz rogi strefy chronionej | klik = punkt, `z` zapisz, `r` reset, `q` wyjście |
+| `integracja.py` | cały system na żywo | `s` swój/wróg, `m` wycisz, `q` wyjście |
 
-Model YOLO (5 MB) pobiera się sam przy pierwszym uruchomieniu.
+Model YOLO (5 MB) pobiera się sam przy pierwszym uruchomieniu z kamerą.
 
-**Twoje ustawienia — `config.local.json`** (opcjonalny, nie trafia do gita)
+### Gdy nie działa
+- **`No module named 'cv2'`** → VS Code używa systemowego Pythona: zrób krok 4. Używasz „Run Code”
+  (rozszerzenie *Code Runner*)? Ono zawsze bierze systemowego Pythona — klikaj **Run Python File**.
+- **`'py' is not recognized`** → zainstaluj Pythona ponownie z „Add python.exe to PATH”.
+- **Czarne okno / zła kamera** → ustaw `"kamera_glowna": 1` w `config.local.json` (niżej).
+- **Kamera zajęta** → zamknij Teams/Zoom/Discord.
 
-Program czyta najpierw wspólny `config.json`, a potem nadpisuje go tym, co jest w `config.local.json`.
-Dopóki wszystko działa, ten plik nie jest potrzebny. Gdy chcesz coś zmienić tylko u siebie,
-wpisz w oknie `cmd` otwartym w folderze projektu (jak przy instalacji):
+## Ustawienia tylko u siebie — `config.local.json`
+
+- `config.json` — wspólny, w repo. Zmiana trafia do wszystkich.
+- `config.local.json` — Twój, **poza gitem**. Nadpisuje `config.json`. Opcjonalny: póki działa, nie twórz go.
+
+Utworzenie (w terminalu VS Code), potem edytujesz go w VS Code:
 ```bat
 copy config.local.example.json config.local.json
 ```
-i w Notatniku zmień wartość:
-- `"kamera_glowna"` — numer kamery: `0` = wbudowana, `1` = druga (np. na USB),
-- `"esp32_port"` — zostaw `"auto"`; konkretny port (np. `"COM5"`) tylko gdy auto nie znajdzie płytki.
+- `"kamera_glowna"` — `0` = wbudowana, `1` = druga (np. USB),
+- `"esp32_port"` — zostaw `"auto"` (sam znajduje ESP32); wpisz np. `"COM5"` tylko, gdy auto nie znajdzie płytki.
 
-`config.local.example.json` to tylko wzór do skopiowania — program go nie czyta, nie edytuj go i nie usuwaj
-(jest w repo dla następnych osób). Liczy się wyłącznie `config.local.json`.
-Linijki, których nie zmieniasz, możesz usunąć. Strefę dopisuje tam sam `kalibracja_strefy.py`.
-Każdy inny klucz z `config.json` też można tu nadpisać.
-
-**Problemy:** `'py' is not recognized` → zainstaluj Pythona ponownie z „Add to PATH” ·
-czarne okno / zła kamera → w `config.local.json` ustaw `"kamera_glowna": 1` · kamera zajęta → zamknij Teams/Zoom/Discord.
+Strefę dopisuje tam sam `kalibracja_strefy.py`. Można nadpisać każdy klucz z `config.json`.
+`config.local.example.json` to tylko wzór — program go nie czyta. Nie edytuj go i nie usuwaj.
 
 ## ESP32 (tylko osoba od firmware)
 1. [Arduino IDE 2](https://www.arduino.cc/en/software) → *Boards Manager*: **esp32** (Espressif) → *Library Manager*: **ESP32Servo**.
-2. Podłącz ESP32 kablem USB **z danymi** (nie „tylko ładowanie”). Nie widać nowego portu COM w Menedżerze urządzeń →
-   sterownik wg kostki przy USB: **CP2102** → Silicon Labs CP210x, **CH340** → WCH CH340.
-3. Otwórz szkic z `firmware/` (na start `ble_test`), *Board: ESP32 Dev Module*, *Port: COMx*, Upload
-   (wisi na `Connecting....` → przytrzymaj **BOOT**). *Serial Monitor*: 115200.
+2. ESP32 podłącz kablem USB **z danymi** (nie „tylko ładowanie”). Brak nowego portu COM w Menedżerze urządzeń →
+   sterownik wg kostki przy złączu USB: **CP2102** → Silicon Labs CP210x, **CH340** → WCH CH340.
+3. Otwórz szkic z `firmware/` (na start `ble_test`), *Board: ESP32 Dev Module*, *Port: COMx*, **Upload**.
+   Wisi na `Connecting....` → przytrzymaj **BOOT**. *Serial Monitor*: 115200.
 
-Portu nie trzeba wpisywać do konfiguracji — `"esp32_port": "auto"` sam znajduje ESP32 po USB.
-⚠️ Przed serwami/pompką: „Złote zasady” w `CLAUDE.md` (serwa max 6 V, dioda flyback, BHP).
+⚠️ Przed podłączeniem serw i pompki: „Złote zasady” w `CLAUDE.md` (serwa max 6 V, dioda flyback, BHP).
 
-**n8n + Telegram** (Faza 7) — jeszcze nie instaluj; będzie potrzebny Docker Desktop i plik `.env` (z `.env.example`).
+**n8n + Telegram** (Faza 7) — jeszcze nie instaluj. Będzie potrzebny Docker Desktop i plik `.env` (wzór: `.env.example`).
 
-## Struktura
-- `capture.py` — odczyt obrazu z kamery (wątek, bufor najnowszej klatki)
-- `detector.py` — detekcja ludzi modelem YOLO (yolo11n), pomiar FPS
-- `zona.py` + `kalibracja_strefy.py` — strefa chroniona (wielokąt 0–1) + kalibrator
-- `rules.py` — potwierdzanie na N klatkach + klasyfikacja swój/wróg
-- `main.py` — maszyna stanów + logging
-- `turret_controller.py` — komendy do ESP32 (AIM/FIRE/LASER/BUZZ), tryb SIM
-- `integracja.py` — pełna pętla na żywo (Visual Servoing, bez sprzętu w SIM)
-- `ble_scanner.py` — skaner BLE po stronie PC (opcjonalny fallback; IFF robi ESP32)
-- `events.py` — zapis zdarzeń (SQLite) + zdjęcia, webhook do n8n (TODO)
-- `config.py` — wczytuje `config.json` (wspólny) + `config.local.json` (Twój komputer)
-- `config.json` — konfiguracja (strefa, kąty, progi, godziny czuwania, IFF)
-- `firmware/` — kod ESP32: `smartguard_esp32` (główny), `ble_test`, `serwo_test`
+## Stan projektu (listopad 2026)
+Działa (software, wieżyczka symulowana):
+- ✅ detekcja YOLO `yolo11n` na CPU (~40–60 ms/klatkę),
+- ✅ strefa chroniona (wielokąt) + potwierdzanie na 3 klatkach,
+- ✅ maszyna stanów IDLE → DETECTED → CONFIRMING → FRIENDLY/FOE → ENGAGE → COOLDOWN (+ wyciszenie),
+- ✅ IFF: ESP32 skanuje BLE i rozpoznaje swojego po MAC/nazwie + RSSI (sprawdzone na płytce),
+- ✅ integracja na żywo (`integracja.py`): cały łańcuch na kamerze.
 
-## Zasady pracy (Git)
-- **Teraz (solo):** ochrona `main` wyłączona, commity na `main` albo na gałęzi `<type>/<short-description>`.
-- **Zespół:** ochrona `main` (**PR + min. 1 approval lidera**), każdy na gałęzi `<type>/<short-description>` (np. `feat/web-panel`).
+Czeka na sprzęt: serwa, zasilanie, pompka, pierwszy strzał.
+Następne (bez sprzętu): n8n + Telegram, zapis zdarzeń i zdjęć (SQLite), panel WWW.
+
+## Jak to działa
+Kamera → `capture.py` → `detector.py` (YOLO) → `zona.py` (strefa) + `rules.py` (3 klatki + IFF)
+→ `main.py` (maszyna stanów) → `turret_controller.py` → ESP32 (serwa, pompka, laser).
+ESP32 wysyła do PC `IFF:<0/1>,<rssi>` (swój w pobliżu + siła sygnału).
+
+| Plik | Rola |
+|---|---|
+| `capture.py` | odczyt kamery w osobnym wątku |
+| `detector.py` | YOLO `yolo11n`, tylko ludzie |
+| `zona.py`, `kalibracja_strefy.py` | strefa chroniona + jej kalibracja |
+| `rules.py` | potwierdzanie na 3 klatkach, swój/wróg |
+| `main.py` | maszyna stanów + logi |
+| `turret_controller.py` | komendy do ESP32 (AIM/FIRE/LASER/BUZZ), tryb SIM, auto-port |
+| `integracja.py` | pełna pętla na żywo |
+| `config.py` | wczytuje `config.json` + `config.local.json` |
+| `ble_scanner.py` | skan BLE z PC (zapas — normalnie skanuje ESP32) |
+| `events.py` | zapis zdarzeń + n8n — **do zrobienia** (Faza 7) |
+| `firmware/` | ESP32: `smartguard_esp32` (główny), `ble_test`, `serwo_test` |
+
+## Git
+- Każdy pracuje na swojej gałęzi `<type>/<short-description>` (np. `feat/web-panel`, `fix/camera-index`).
+- Do `main` tylko przez **Pull Request** zatwierdzony przez kogoś z zespołu (1 approval).
+- Commity: `<type>(<scope>): <opis>`, np. `fix(zona): poprawne domkniecie strefy`.
 - Kto co robi: `docs/podzial_pracy.md`.
-
-## Dokumentacja
-Karta projektu i instrukcja wykonawcza — folder `docs/` (oraz repo dokumentów zespołu).
