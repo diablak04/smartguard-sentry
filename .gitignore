@@ -32,5 +32,7 @@ events/
 videos/
 *.mp4
 
-# Prywatne notatki kazdego dla Claude Code
+# Prywatne: instrukcje dla asystenta AI (CLAUDE.local.md = dawna nazwa) i notatki robocze kazdego
+AGENTS.local.md
 CLAUDE.local.md
+notes/
