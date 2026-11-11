@@ -3,7 +3,7 @@
 ultralytics     # YOLO (wykrywanie ludzi); dociaga PyTorch i numpy
 opencv-python   # kamera, okna, rysowanie
 pyserial        # komunikacja z ESP32 po USB
-fastapi         # panel WWW (Faza 8)
+fastapi         # panel WWW (UC-03, UC-07)
 uvicorn         # serwer dla panelu WWW
-requests        # wysylanie zdarzen do n8n (Faza 7)
+requests        # alert na Telegram (UC-02); opcjonalnie webhook n8n
 bleak           # opcjonalnie: skan BLE z PC (domyslnie skanuje ESP32)

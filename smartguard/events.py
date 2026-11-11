@@ -1,4 +1,5 @@
-"""Persystencja zdarzeń: zapis do SQLite + 2 zdjęcia (strefa + FPV), webhook do n8n.
+"""Zapis zdarzenia: zdjęcie JPG z ramkami + wiersz w SQLite ze statusem „niewysłany”, przed wysyłką alertu.
 
-TODO (Dzień 7): schemat tabeli zdarzeń, zapis JPG, requests.post do N8N_WEBHOOK_URL.
+Do napisania (issue #6). Wymagania: docs/project/scope.md § UC-01 → zapis zdarzenia;
+co dostaje od detekcji: docs/project/team.md § Co kto komu przekazuje.
 """
