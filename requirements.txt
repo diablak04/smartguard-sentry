@@ -1,7 +1,9 @@
-ultralytics
-opencv-python
-bleak
-pyserial
-fastapi
-uvicorn
-requests
+# Biblioteki Pythona - instalacja: .venv\Scripts\python.exe -m pip install -r requirements.txt
+# Sprawdzone na Python 3.13 (Windows 11), 11.2026. Lacznie ~1,2 GB (glownie PyTorch).
+ultralytics     # YOLO (wykrywanie ludzi); dociaga PyTorch i numpy
+opencv-python   # kamera, okna, rysowanie
+pyserial        # komunikacja z ESP32 po USB
+fastapi         # panel WWW (Faza 8)
+uvicorn         # serwer dla panelu WWW
+requests        # wysylanie zdarzen do n8n (Faza 7)
+bleak           # opcjonalnie: skan BLE z PC (domyslnie skanuje ESP32)
