@@ -64,6 +64,8 @@ i w Notatniku zmień wartość:
 - `"kamera_glowna"` — numer kamery: `0` = wbudowana, `1` = druga (np. na USB),
 - `"esp32_port"` — zostaw `"auto"`; konkretny port (np. `"COM5"`) tylko gdy auto nie znajdzie płytki.
 
+`config.local.example.json` to tylko wzór do skopiowania — program go nie czyta, nie edytuj go i nie usuwaj
+(jest w repo dla następnych osób). Liczy się wyłącznie `config.local.json`.
 Linijki, których nie zmieniasz, możesz usunąć. Strefę dopisuje tam sam `kalibracja_strefy.py`.
 Każdy inny klucz z `config.json` też można tu nadpisać.
 
@@ -97,8 +99,9 @@ Portu nie trzeba wpisywać do konfiguracji — `"esp32_port": "auto"` sam znajdu
 - `firmware/` — kod ESP32: `smartguard_esp32` (główny), `ble_test`, `serwo_test`
 
 ## Zasady pracy (Git)
-- **Obecnie praca solo** → ochrona `main` tymczasowo zdjęta, commity bezpośrednio na `main`.
-- Gdy dołączy zespół: włączyć ochronę `main` (**PR + min. 1 approval**), pracować na `feature/<opis>`.
+- **Teraz (solo):** ochrona `main` wyłączona, commity na `main` albo na gałęzi `<type>/<short-description>`.
+- **Zespół:** ochrona `main` (**PR + min. 1 approval lidera**), każdy na gałęzi `<type>/<short-description>` (np. `feat/web-panel`).
+- Kto co robi: `docs/podzial_pracy.md`.
 
 ## Dokumentacja
 Karta projektu i instrukcja wykonawcza — folder `docs/` (oraz repo dokumentów zespołu).
