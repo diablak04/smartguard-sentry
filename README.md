@@ -93,6 +93,9 @@ Strefę dopisuje tam `kalibracja_strefy.py`. `.env`: `copy .env.example .env` i 
 
 ## Praca w zespole
 
+**Repo jest publiczne.** Wypychamy tylko rzeczy gotowe do pokazania i bez danych osobowych: zasady w `CLAUDE.md`
+(sekcja „Repo jest PUBLICZNE”). Prywatne notatki dla Claude Code trzymasz w swoim `CLAUDE.local.md` (poza gitem).
+
 **Narzędzia** (karta § 6.1, z jedną zmianą):
 
 | Do czego | Narzędzie |
