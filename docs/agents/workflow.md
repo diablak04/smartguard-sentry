@@ -56,7 +56,7 @@ Samo „zrobione” nie wystarcza; gotowe jest to, co zostało sprawdzone.
 - **Operacje niszczące tylko za zgodą:** `git reset --hard`, usuwanie plików, nadpisywanie cudzej pracy. Przed
   nadpisaniem albo usunięciem obejrzyj, co tam jest.
 - Pliki robocze (zrzuty, `debug_*.py`, printy) sprzątasz przed commitem.
-- Windows: PowerShell 5.1 nie zna `&&` (łącz przez `;`), a `Set-Content` bez `-Encoding utf8` psuje polskie znaki.
+- Windows: PowerShell 5.1 nie zna `&&` (łącz przez `;`). Plików nie zapisuj `Set-Content` / `Out-File` / `>`: psują polskie znaki albo dopisują BOM, także z `-Encoding utf8`. Zapis edytorem, narzędziem edycji asystenta albo Pythonem (`open(p, "w", encoding="utf-8")`).
 
 ## Podsumowanie na koniec pracy
 Krótko, w tej kolejności: **Zrobione** (co i gdzie) · **Sprawdzone** (komenda + wynik) · **Niesprawdzone** ·
