@@ -13,6 +13,7 @@ import importlib
 
 MODES = {
     "live": "system na zywo (domyslnie)",
+    "web": "podglad + sterowanie z przegladarki/telefonu (http://<IP>:8000)",
     "demo": "scenariusz bez kamery",
     "calibrate": "wyznaczanie strefy chronionej",
     "preview": "podglad detekcji i strefy",
