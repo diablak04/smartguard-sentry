@@ -1,8 +1,8 @@
-"""SmartGuard na zywo — caly system, wiezyczka w trybie SIM (bez fizycznego sprzetu).
+"""SmartGuard na zywo — caly system z realna wiezyczka (ESP32).
 
 Pelna petla: kamera -> YOLO -> strefa -> reguly -> maszyna stanow -> sterownik.
-Sterownik w trybie SIM tylko loguje (AIM na DEBUG, wiec konsola jest cicha),
-dzieki czemu dziala bez sprzetu. Celowanie: srodek korpusu GLOWNEGO celu
+Tryb sterownika z config.json (esp32.sim): false = realna wiezyczka (auto-wykrycie
+ESP32 po USB; gdy brak -> fallback na SIM, komendy tylko logowane). Celowanie: srodek korpusu GLOWNEGO celu
 (najwiekszy w strefie), wygladzony (EMA), zeby celownik nie skakal.
 
 UWAGA: strefa jest w widoku kamery. Najpierw skalibruj ja pod SWOJ widok
@@ -19,6 +19,10 @@ from smartguard.config import load_config
 from smartguard.detector import Detector
 from smartguard.state_machine import SmartGuard, setup_logging
 from smartguard.turret import TurretController
+
+HOME_DELAY = 1.5     # s bez celu zanim wiezyczka wroci na srodek (anty-oscylacja)
+AIM_DEADZONE = 2     # stopnie - mniejsza zmiana nie rusza serwa (anty-drganie)
+
 
 def map_range(v, a0, a1, b0, b1):
     return b0 + (v - a0) * (b1 - b0) / (a1 - a0)
@@ -43,13 +47,17 @@ def run() -> None:
 
     cam = Camera(cfg["camera"]["main"]).start()
     det = Detector(cfg["yolo"]["model"], cfg["yolo"]["confidence"])
-    turret = TurretController(port=cfg["esp32"]["port"], baud=cfg["esp32"]["baud"], sim=True)  # SIM: bez sprzetu
+    # sim z configu: false = realna wiezyczka (auto-wykrycie ESP32); brak ESP -> i tak fallback na SIM
+    turret = TurretController(port=cfg["esp32"]["port"], baud=cfg["esp32"]["baud"],
+                              sim=cfg["esp32"].get("sim", False))
     sg = SmartGuard(cfg, cooldown_ticks=8)
 
     iff_friend = False
     last_step = 0.0
-    aim = ((servo["pan_min"] + servo["pan_max"]) // 2, (servo["tilt_min"] + servo["tilt_max"]) // 2)  # srodek zakresu serw
+    home = ((servo["pan_min"] + servo["pan_max"]) // 2, (servo["tilt_min"] + servo["tilt_max"]) // 2)  # pozycja domyslna (srodek)
+    aim = home
     sc = None          # wygladzony srodek celu (smoothed center)
+    last_seen = 0.0
     flash_until = 0.0
     time.sleep(1.0)
     print("Okno: 's'=swoj/wrog  'm'=mute  'q'=wyjscie  (konsola: stany + STRZAL)")
@@ -89,8 +97,14 @@ def run() -> None:
             action = sg.step(target_in_zone, iff_friend)
             last_step = time.time()
             if sc is not None:
-                aim = (int(map_range(sc[0], 0, w, servo["pan_min"], servo["pan_max"])),
-                       int(map_range(sc[1], 0, h, servo["tilt_max"], servo["tilt_min"])))
+                new_aim = (int(map_range(sc[0], 0, w, servo["pan_min"], servo["pan_max"])),
+                           int(map_range(sc[1], 0, h, servo["tilt_max"], servo["tilt_min"])))
+                if abs(new_aim[0] - aim[0]) > AIM_DEADZONE or abs(new_aim[1] - aim[1]) > AIM_DEADZONE:
+                    aim = new_aim          # ruszaj tylko przy wyrazniejszej zmianie (martwa strefa)
+                    turret.aim(*aim)
+                last_seen = time.time()
+            elif time.time() - last_seen > HOME_DELAY and aim != home:
+                aim = home                 # brak celu dluzej niz HOME_DELAY -> powrot na srodek
                 turret.aim(*aim)
             if action and action[0] == "FIRE":
                 turret.fire(action[1])

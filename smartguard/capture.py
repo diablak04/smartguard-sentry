@@ -10,7 +10,9 @@ import cv2
 class Camera:
     def __init__(self, src=0):
         self.src = src                       # 0 = pierwsza kamera; moze byc tez plik/RTSP
-        self.cap = cv2.VideoCapture(src)
+        # Kamera USB (int) -> backend DSHOW (na Windowsie szybki i stabilny);
+        # plik/RTSP (str) -> backend domyslny.
+        self.cap = cv2.VideoCapture(src, cv2.CAP_DSHOW) if isinstance(src, int) else cv2.VideoCapture(src)
         self.frame = None
         self.running = False
         self.lock = threading.Lock()
