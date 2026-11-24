@@ -77,7 +77,7 @@ Firmware jest w `firmware/` (Arduino C++). Wgrywanie, połączenia i protokół:
 |---|---|
 | `diablak04` | Product Owner (PO) |
 | `AxmBro` | Scrum Master (SM) |
-| *(do dodania)* | Developer (DEV) |
+| `ChuckSus` | Developer (DEV) |
 
 - Kto co robi, Kanban, Definicja Ukończenia: [`docs/project/team.md`](docs/project/team.md).
 - Zmiany przez gałąź i Pull Request z 1 approval: [`docs/agents/git.md`](docs/agents/git.md).

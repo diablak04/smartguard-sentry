@@ -18,7 +18,8 @@ Jedyna tabela tego typu w repo. Jedna rzecz = jedno miejsce; gdzie indziej tylko
 | Zasada: Git, PR, issue, dane osobowe w historii | `docs/agents/git.md` |
 | Zasada: dokumenty, notatki, nazwy plików `.md` | ten plik |
 | Zasady nowego obszaru (panel WWW, Telegram, testy), gdy jest ich więcej niż kilka linii | nowy `docs/agents/<obszar>.md` + wiersz w tabeli `AGENTS.md` § Zanim zaczniesz + wiersz w `docs/README.md` |
-| Architektura, model danych (ERD), diagram UML, plan i wyniki testów | `docs/design/` według `docs/README.md` § Dokumentacja na oddanie |
+| Przypadek testowy | `testy/przypadki_testowe.md` (nazwa i miejsce z karty pracy z GitHuba, wyjątek od § Nazwy plików `.md`) |
+| Architektura, model danych (ERD), diagram UML, wyniki testów na nagraniach | `docs/design/` według `docs/README.md` § Dokumentacja na oddanie |
 | Research ze źródłami i werdyktem | wiersz w `docs/research/README.md` (+ opracowanie, decyzja), według `docs/agents/research.md` |
 | Zamknięty dokument wart zachowania (stary plan, usunięty mechanizm) | `docs/archive/<temat>.md` z nagłówkiem „Archiwum, nie edytować” |
 | Bieżące zadanie, plan na najbliższe dni, pomysł na później | Kanban |

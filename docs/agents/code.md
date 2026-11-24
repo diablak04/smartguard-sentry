@@ -25,6 +25,7 @@ smartguard-sentry/
 ├─ main.py                 jedyne wejście: python main.py [live | demo | calibrate | preview]
 ├─ smartguard/             kod aplikacji (pakiet), w tym tryby live, demo, calibrate, preview
 ├─ tests/                  testy pytest
+├─ testy/                  przypadki testowe w Markdown (nazwa z karty pracy)
 ├─ firmware/               szkice ESP32 (nazwa folderu = nazwa pliku .ino)
 ├─ docs/                   dokumentacja (mapa: docs/README.md)
 ├─ models/  logs/  data/   pliki generowane, poza gitem

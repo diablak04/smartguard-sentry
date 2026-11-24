@@ -45,7 +45,8 @@ Diagram = źródło `.drawio` + eksport `.png` obok, ta sama nazwa (np. `diagram
 | Diagram stanów | `diagrams/state` | maszyną stanów (`State` w `smartguard/state_machine.py`) |
 | Diagram wdrożenia | `diagrams/deployment` | uruchomieniem: PC, kamera, ESP32, Telegram, n8n w Dockerze |
 | Architektura: moduły, przepływ, protokół PC ↔ ESP32 | `architecture.md` | spięciem modułów |
-| Testy: przypadki testowe do wymagań, nagranie demo, wyniki | `testing.md` | testami (DEV) |
+| Testy: przypadki testowe | — ([`testy/przypadki_testowe.md`](../testy/przypadki_testowe.md), poza `design/`) | testami (DEV) |
+| Testy: nagranie demo, wyniki na nagraniach | `testing.md` | testami (DEV) |
 
 Lista elementów pochodzi z planu przedmiotu na Moodle (wymagania, UML, ERD, testowanie). Plik dodajesz wtedy,
 gdy jego treść jest gotowa, a nie jako pusty szablon.
