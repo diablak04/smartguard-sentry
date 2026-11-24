@@ -9,7 +9,7 @@ Stan prac: [`docs/project/scope.md`](scope.md). Bieżące zadania: Kanban.
 |---|---|---|
 | **PO** | `diablak04` | kolejność zadań, odbiór UC; **wykrywanie (UC-01)** i **wieżyczka (Sentry)** |
 | **SM** | `AxmBro` | Kanban, Daily, dokumentacja z zajęć, Moodle; **zapis zdarzeń, panel, spięcie** |
-| **DEV** | *(do dodania)* | **alert na Telegram (UC-02)**, nagrania testowe |
+| **DEV** | `ChuckSus` | **alert na Telegram (UC-02)**, nagrania testowe |
 
 ## Kto robi który UC
 
